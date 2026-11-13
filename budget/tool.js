@@ -30,7 +30,9 @@
   const cfg = JSON.parse(document.getElementById("tool-config").textContent);
   const YEARS = cfg.columns.map((c, k) => ({ key: String(k), label: c.label }));
   // The budget book, from the filter column: each book is its own page.
-  document.querySelectorAll("[name=book]").forEach((box) => box.addEventListener("change", () => { window.location.href = box.value; }));
+  // Moving to another book: only a page of this site.
+  const goTo = (href) => { const url = new URL(href, window.location.href); if (url.origin === window.location.origin) window.location.assign(url.href); };
+  document.querySelectorAll("[name=book]").forEach((box) => box.addEventListener("change", () => goTo(box.value)));
   // Which column the cards, stats and charts show. The table always shows them all.
   const columnBoxes = Array.from(document.querySelectorAll("[name=column]"));
   const asked = params().get("show");
@@ -51,7 +53,7 @@
   // It runs after the shared filter script has cleared the choices.
   document.getElementById("reset-filters-button").addEventListener("click", () => setTimeout(() => {
     // The default book is the latest: from an earlier book, Reset goes to it.
-    if (cfg.currentBook !== cfg.latestBook) { window.location.href = cfg.latestBook; return; }
+    if (cfg.currentBook !== cfg.latestBook) { goTo(cfg.latestBook); return; }
     col = cfg.defaultColumn;
     setBox();
     applyColumn();
@@ -309,7 +311,7 @@
   };
   const exportCompare = () => {
     const { head, body } = compareTable();
-    const esc = (t) => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    const esc = (t) => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
     exportEl.innerHTML = `<table><caption>${esc(cmp.caption)}</caption><thead><tr>${head.map((h, i) => `<th>${esc(i ? h : "Measure")}</th>`).join("")}</tr></thead><tbody>` + body.map((r) => `<tr>${r.map((t) => `<td>${esc(t)}</td>`).join("")}</tr>`).join("") + "</tbody></table>";
     const csv = document.getElementById("csv-table");
     if (csv) {
@@ -346,7 +348,7 @@
     const filters = summaryEl.textContent;
     const canvases = drawnCanvases();
     const text = [header, filters, "", ...canvases.flatMap((canvas) => [window.marinChartTitle(canvas), summaryOf(canvas), ""])].join("\n").trim();
-    const escape = (t) => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    const escape = (t) => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
     const html = `<div><b>${escape(header)}</b><br>${escape(filters)}<br><br>` + canvases.map((canvas) => {
       const title = window.marinChartTitle(canvas);
       return `<b>${escape(title)}</b><br>${escape(summaryOf(canvas))}<br><img src="${window.marinChartImage(canvas).toDataURL("image/png")}" alt="${escape(title)}" width="${canvas.clientWidth}" height="${canvas.clientHeight}">`;
@@ -373,7 +375,7 @@
     if (tab === "compare") { exportCompare(); return; }
     const head = [cfg.titleLabel, ...cfg.facets.map((f) => f.label.replace(/s$/, "")), ...YEARS.map((y) => y.label)];
     const cellsOf = (c) => [c.dataset.title, ...cfg.facets.map((f) => c.dataset[facetKey(f.name)]), ...YEARS.map((y) => (c.dataset[`v${y.key}`] === "" ? "" : money(num(c, `v${y.key}`))))];
-    const esc = (t) => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    const esc = (t) => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
     exportEl.innerHTML = `<table><caption>${esc(cfg.exportCaption)}</caption><thead><tr>${head.map((h) => `<th>${esc(h)}</th>`).join("")}</tr></thead><tbody>` +
       out.map((c) => `<tr>${cellsOf(c).map((t) => `<td>${esc(t)}</td>`).join("")}</tr>`).join("") + "</tbody></table>";
     const csv = document.getElementById("csv-table");
