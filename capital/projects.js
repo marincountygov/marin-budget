@@ -225,7 +225,7 @@
     const filters = summaryEl.textContent;
     const canvases = drawnCanvases();
     const text = [header, filters, "", ...canvases.flatMap((canvas) => [window.marinChartTitle(canvas), summaryOf(canvas), ""])].join("\n").trim();
-    const escape = (t) => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    const escape = (t) => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
     const html = `<div><b>${escape(header)}</b><br>${escape(filters)}<br><br>` + canvases.map((canvas) => {
       const title = window.marinChartTitle(canvas);
       return `<b>${escape(title)}</b><br>${escape(summaryOf(canvas))}<br><img src="${window.marinChartImage(canvas).toDataURL("image/png")}" alt="${escape(title)}" width="${canvas.clientWidth}" height="${canvas.clientHeight}">`;
@@ -254,7 +254,7 @@
     const head = ["Project", "Category", "Status", "Cost estimate", "Prior approvals", ...Array.from(document.querySelectorAll("#project-table thead th")).slice(6, 11).map((th) => th.textContent), "Additional funds needed"];
     // The page's own table for the buttons to copy: only what they should hold.
     const cellsOf = (c) => [link(c).textContent, c.dataset.category + (c.dataset.subcategory ? `: ${c.dataset.subcategory}` : ""), c.dataset.facetStatus, money(num(c, "cost")), money(num(c, "prior")), ...yearCols.map((y) => money(num(c, `y${y}`))), money(num(c, "needed"))];
-    const esc = (t) => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    const esc = (t) => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
     exportEl.innerHTML = `<table><caption>Projects in the County of Marin FY 2027-31 Capital Improvement Plan</caption><thead><tr>${head.map((h) => `<th>${esc(h)}</th>`).join("")}</tr></thead><tbody>` +
       out.map((c) => `<tr>${cellsOf(c).map((t) => `<td>${esc(t)}</td>`).join("")}</tr>`).join("") + "</tbody></table>";
     const csv = document.getElementById("csv-table");
