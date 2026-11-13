@@ -2,8 +2,39 @@
 import json
 import re
 import unittest
+from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import unquote, urlparse
+
+
+class _VisibleText(HTMLParser):
+    """The text a page shows: everything outside script and style elements."""
+
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.parts = []
+        self._hidden = 0
+
+    def handle_starttag(self, tag, attrs):
+        if tag in ("script", "style"):
+            self._hidden += 1
+        else:
+            self.parts.append(" ")
+
+    def handle_endtag(self, tag):
+        if tag in ("script", "style") and self._hidden:
+            self._hidden -= 1
+
+    def handle_data(self, data):
+        if not self._hidden:
+            self.parts.append(data)
+
+
+def visible_text(html: str) -> str:
+    parser = _VisibleText()
+    parser.feed(html)
+    parser.close()
+    return "".join(parser.parts)
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -133,7 +164,7 @@ class BudgetPageTests(unittest.TestCase):
         self.assertIn('id="budget-fy2025-26"', building)
         self.assertNotIn("fund-chart-departments-data", building)
         # Names are written as the County writes them, and a program's General Fund row links to the page.
-        shown = re.sub(r"<script[^>]*>.*?</script>", " ", funds, flags=re.S)  # the JSON is the data as it is
+        shown = visible_text(funds)  # the JSON is the data as it is
         self.assertIn("HHS Social Services Realignment", shown)
         self.assertNotIn("Hhs ", shown)
 
