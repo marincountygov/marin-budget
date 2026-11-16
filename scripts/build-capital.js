@@ -27,6 +27,8 @@ if (src) {
   fs.mkdirSync(DATA, { recursive: true });
   for (const f of FILES) fs.copyFileSync(path.join(src, f), path.join(DATA, f));
   fs.copyFileSync(path.join(src, 'source', 'cip-display.json'), path.join(DATA, 'cip-display.json'));
+  // sources.json is generated from marin-data/sources.json and sits one folder above the cip data.
+  fs.copyFileSync(path.join(src, '..', 'sources.json'), path.join(DATA, 'sources.json'));
 }
 const graph = (f) => JSON.parse(fs.readFileSync(path.join(DATA, f), 'utf8'))['@graph'];
 const projects = graph('cip-projects.jsonld');
