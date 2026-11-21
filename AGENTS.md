@@ -4,7 +4,7 @@
 
 This is a static, zero-build MarinOS docs-shell application. It uses the MarinOS App Shell (installed with `marin-app-shell/scripts/install.sh`, version recorded in `platform.shell` in `marin.yml`) and follows `marin-digital-standards`. See `marin.yml` for this project's owner, status, and platform versions.
 
-The pages are generated from marin-data by `scripts/build-all.sh`; do not edit `index.html`, `budget/` or `capital/` pages by hand. The Dashboard (`index.html`) is a tight look at each tab with a link to it, like an organization page's Dashboard in marin-docs.
+The pages are generated from marin-data by `scripts/build-all.sh`; do not edit `index.html`, `budget/` or `capital/` pages by hand. The Dashboard (`index.html`) is a tight look at each tab with a link to it, like an organization page's Dashboard in marin-pulse.
 
 ## Before making changes
 
@@ -20,5 +20,5 @@ Run `bash scripts/build-all.sh` if a generator or the data changed, then `bash s
 ## References
 
 - `marin-data`: the extractors and the data these pages are built from
-- `marin-docs`: organization, service area and program pages, which carry the Budget tab: https://github.com/marincountygov/marin-docs
+- `marin-pulse`: organization, service area and program pages, which carry the Budget tab: https://github.com/marincountygov/marin-pulse
 - `marin-ui`, `marin-digital-standards`, `marin-skills`, `marin-os`: https://github.com/marincountygov

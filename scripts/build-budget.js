@@ -29,7 +29,7 @@ const orgs = fs.existsSync(orgFile) ? JSON.parse(fs.readFileSync(orgFile, 'utf8'
 const orgById = new Map(orgs.map((o) => [o['@id'], o]));
 const slugOf = (id) => id.split(/[/:]/).pop();
 const areaSlug = (o) => slugOf(o['@id']).replace(/^service-area-/, '');
-const DOCS = 'https://marincountygov.github.io/marin-docs/';
+const DOCS = 'https://marincountygov.github.io/marin-pulse/';
 const orgHref = (o) => DOCS + (o.organizationClassification === 'serviceArea' ? `service-areas/${areaSlug(o)}.html` : `organization/${slugOf(o['@id'])}.html`);
 const funds = JSON.parse(fs.readFileSync(path.join(DATA, 'funds.jsonld'), 'utf8'))['@graph'];
 const sources = JSON.parse(fs.readFileSync(path.join(DATA, 'sources.json'), 'utf8'));
