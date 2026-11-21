@@ -12,7 +12,7 @@ Marin Budget is the County of Marin budget and Capital Improvement Plan. It open
 - `scripts/`: the page generators and `check.sh`
 - `vendor/`: the installed MarinOS App Shell (`vendor/marinos/`), its fonts, icons and Chart.js
 
-Every page uses the MarinOS app shell (`marin-app-header`, `marin-app-info` with About, Security, Accessibility and Updates, `marin-app-footer`, `marin-app-feedback`), written by `scripts/budget-shell.js`; `shared/app-home.js` points the header title at the app's home page from any folder. The tabs of every page are Dashboard, Budget and Capital improvement plan. Pages for organizations, service areas and programs are in [Marin Docs](https://marincountygov.github.io/marin-docs/); links to them are absolute, and the Budget tab on those pages reads the same data from marin-data.
+Every page uses the MarinOS app shell (`marin-app-header`, `marin-app-info` with About, Security, Accessibility and Updates, `marin-app-footer`, `marin-app-feedback`), written by `scripts/budget-shell.js`; `shared/app-home.js` points the header title at the app's home page from any folder. The tabs of every page are Dashboard, Budget and Capital improvement plan. Pages for organizations, service areas and programs are in [Marin Pulse](https://marincountygov.github.io/marin-pulse/); links to them are absolute, and the Budget tab on those pages reads the same data from marin-data.
 
 ## Data
 
