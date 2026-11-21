@@ -30,7 +30,7 @@ const programFile = path.join(ROOT, 'data', 'programs.jsonld');
 const programNames = new Map((fs.existsSync(programFile) ? JSON.parse(fs.readFileSync(programFile, 'utf8'))['@graph'] : []).map((p) => [p['@id'], p.name]));
 const slugOf = (id) => id.split(/[/:]/).pop();
 const areaSlug = (o) => slugOf(o['@id']).replace(/^service-area-/, '');
-const DOCS = 'https://marincountygov.github.io/marin-docs/';
+const DOCS = 'https://marincountygov.github.io/marin-pulse/';
 const orgHref = (o) => DOCS + (o.organizationClassification === 'serviceArea' ? `service-areas/${areaSlug(o)}.html` : `organization/${slugOf(o['@id'])}.html`);
 const funds = JSON.parse(fs.readFileSync(path.join(DATA, 'funds.jsonld'), 'utf8'))['@graph'];
 const sources = JSON.parse(fs.readFileSync(path.join(DATA, 'sources.json'), 'utf8'));
