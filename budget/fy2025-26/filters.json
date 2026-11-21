@@ -1,0 +1,354 @@
+{
+  "$schema": "../../vendor/marinos/filter-panel.schema.json",
+  "schemaVersion": "1.0.0",
+  "search": {
+    "id": "line-search",
+    "fields": [
+      "title",
+      "function",
+      "activity",
+      "unit"
+    ],
+    "match": "phrase"
+  },
+  "groups": [
+    {
+      "type": "radio",
+      "id": "book",
+      "label": "Budget books",
+      "options": {
+        "values": [
+          {
+            "value": "../index.html",
+            "label": "FY 2026-27 Proposed"
+          },
+          {
+            "value": "./index.html",
+            "label": "FY 2025-26 Final"
+          }
+        ]
+      },
+      "default": "./index.html",
+      "param": "book"
+    },
+    {
+      "type": "select",
+      "id": "year",
+      "label": "Years",
+      "options": {
+        "values": [
+          {
+            "value": "0",
+            "label": "2023-24 Actual"
+          },
+          {
+            "value": "1",
+            "label": "2024-25 Estimated"
+          },
+          {
+            "value": "2",
+            "label": "2025-26 Recommended"
+          },
+          {
+            "value": "3",
+            "label": "2025-26 Adopted"
+          }
+        ]
+      },
+      "default": "3",
+      "param": "show"
+    },
+    {
+      "type": "checkbox",
+      "id": "function",
+      "label": "Functions",
+      "allLabel": "All functions",
+      "options": {
+        "values": [
+          {
+            "value": "General Government",
+            "label": "General Government"
+          },
+          {
+            "value": "Public Protection",
+            "label": "Public Protection"
+          },
+          {
+            "value": "Public Ways and Facilities",
+            "label": "Public Ways and Facilities"
+          },
+          {
+            "value": "Health and Sanitation",
+            "label": "Health and Sanitation"
+          },
+          {
+            "value": "Public Assistance",
+            "label": "Public Assistance"
+          },
+          {
+            "value": "Education",
+            "label": "Education"
+          },
+          {
+            "value": "Recreation and Cultural Services",
+            "label": "Recreation and Cultural Services"
+          },
+          {
+            "value": "Debt Service",
+            "label": "Debt Service"
+          }
+        ]
+      },
+      "param": "function",
+      "field": "function"
+    },
+    {
+      "type": "checkbox",
+      "id": "activity",
+      "label": "Activities",
+      "allLabel": "All activities",
+      "options": {
+        "values": [
+          {
+            "value": "Communication",
+            "label": "Communication"
+          },
+          {
+            "value": "County Counsel",
+            "label": "County Counsel"
+          },
+          {
+            "value": "Elections",
+            "label": "Elections"
+          },
+          {
+            "value": "Finance",
+            "label": "Finance"
+          },
+          {
+            "value": "Legislative and Administrative",
+            "label": "Legislative and Administrative"
+          },
+          {
+            "value": "Other General",
+            "label": "Other General"
+          },
+          {
+            "value": "Personnel",
+            "label": "Personnel"
+          },
+          {
+            "value": "Plant Acquisition",
+            "label": "Plant Acquisition"
+          },
+          {
+            "value": "Property Management",
+            "label": "Property Management"
+          },
+          {
+            "value": "Detention and Correction",
+            "label": "Detention and Correction"
+          },
+          {
+            "value": "Fire Protection",
+            "label": "Fire Protection"
+          },
+          {
+            "value": "Flood Cntrl and Soil and Water Conserv",
+            "label": "Flood Cntrl and Soil and Water Conserv"
+          },
+          {
+            "value": "Judicial",
+            "label": "Judicial"
+          },
+          {
+            "value": "Other Protection",
+            "label": "Other Protection"
+          },
+          {
+            "value": "Police Protection",
+            "label": "Police Protection"
+          },
+          {
+            "value": "Protective Inspection",
+            "label": "Protective Inspection"
+          },
+          {
+            "value": "Park Facilities",
+            "label": "Park Facilities"
+          },
+          {
+            "value": "Public Ways",
+            "label": "Public Ways"
+          },
+          {
+            "value": "California Children Services",
+            "label": "California Children Services"
+          },
+          {
+            "value": "Health",
+            "label": "Health"
+          },
+          {
+            "value": "Sanitation Refuse Collect and Disposal",
+            "label": "Sanitation Refuse Collect and Disposal"
+          },
+          {
+            "value": "Administration",
+            "label": "Administration"
+          },
+          {
+            "value": "Other Assistance",
+            "label": "Other Assistance"
+          },
+          {
+            "value": "Veterans Services",
+            "label": "Veterans Services"
+          },
+          {
+            "value": "Agricultural Education",
+            "label": "Agricultural Education"
+          },
+          {
+            "value": "Library Services",
+            "label": "Library Services"
+          },
+          {
+            "value": "Cultural Services",
+            "label": "Cultural Services"
+          },
+          {
+            "value": "Recreation Facilities",
+            "label": "Recreation Facilities"
+          },
+          {
+            "value": "Debt Service",
+            "label": "Debt Service"
+          }
+        ]
+      },
+      "param": "activity",
+      "field": "activity"
+    },
+    {
+      "type": "checkbox",
+      "id": "unit",
+      "label": "Budget units",
+      "allLabel": "All budget units",
+      "options": {
+        "values": [
+          {
+            "value": "500 AGRICULTURE WEIGHTS MEASURES",
+            "label": "500 AGRICULTURE WEIGHTS MEASURES"
+          },
+          {
+            "value": "310 ASSESSOR RECORDER COUNTY CLERK",
+            "label": "310 ASSESSOR RECORDER COUNTY CLERK"
+          },
+          {
+            "value": "330 BOARD OF SUPERVISORS",
+            "label": "330 BOARD OF SUPERVISORS"
+          },
+          {
+            "value": "200 CHILD SUPPORT SERVICES",
+            "label": "200 CHILD SUPPORT SERVICES"
+          },
+          {
+            "value": "400 COMMUNITY DEVELOPMENT AGENCY",
+            "label": "400 COMMUNITY DEVELOPMENT AGENCY"
+          },
+          {
+            "value": "340 COUNTY COUNSEL",
+            "label": "340 COUNTY COUNSEL"
+          },
+          {
+            "value": "530 CULTURAL SERVICES",
+            "label": "530 CULTURAL SERVICES"
+          },
+          {
+            "value": "320 DEPARTMENT OF FINANCE",
+            "label": "320 DEPARTMENT OF FINANCE"
+          },
+          {
+            "value": "410 DEPARTMENT OF PUBLIC WORKS",
+            "label": "410 DEPARTMENT OF PUBLIC WORKS"
+          },
+          {
+            "value": "220 DISTRICT ATTORNEY",
+            "label": "220 DISTRICT ATTORNEY"
+          },
+          {
+            "value": "390 ELECTIONS",
+            "label": "390 ELECTIONS"
+          },
+          {
+            "value": "100 HEALTH AND HUMAN SERVICES",
+            "label": "100 HEALTH AND HUMAN SERVICES"
+          },
+          {
+            "value": "350 HUMAN RESOURCES",
+            "label": "350 HUMAN RESOURCES"
+          },
+          {
+            "value": "360 INFORMATION SVC AND TECHNOLOGY",
+            "label": "360 INFORMATION SVC AND TECHNOLOGY"
+          },
+          {
+            "value": "230 MARIN COUNTY FIRE",
+            "label": "230 MARIN COUNTY FIRE"
+          },
+          {
+            "value": "540 MARIN COUNTY FREE LIBRARY",
+            "label": "540 MARIN COUNTY FREE LIBRARY"
+          },
+          {
+            "value": "659 MARIN COUNTY OPEN SPACE",
+            "label": "659 MARIN COUNTY OPEN SPACE"
+          },
+          {
+            "value": "520 MARIN COUNTY PARKS",
+            "label": "520 MARIN COUNTY PARKS"
+          },
+          {
+            "value": "380 MCERA",
+            "label": "380 MCERA"
+          },
+          {
+            "value": "900 NON DEPARTMENTAL",
+            "label": "900 NON DEPARTMENTAL"
+          },
+          {
+            "value": "300 OFFICE OF THE COUNTY EXECUTIVE",
+            "label": "300 OFFICE OF THE COUNTY EXECUTIVE"
+          },
+          {
+            "value": "240 PROBATION",
+            "label": "240 PROBATION"
+          },
+          {
+            "value": "250 PUBLIC DEFENDER",
+            "label": "250 PUBLIC DEFENDER"
+          },
+          {
+            "value": "260 SHERIFF CORONERS OFFICE",
+            "label": "260 SHERIFF CORONERS OFFICE"
+          },
+          {
+            "value": "510 UC COOPERATIVE EXTENSION MARIN",
+            "label": "510 UC COOPERATIVE EXTENSION MARIN"
+          },
+          {
+            "value": "000 UNDEFINED",
+            "label": "000 UNDEFINED"
+          },
+          {
+            "value": "653 WASTE MANAGEMENT JPA",
+            "label": "653 WASTE MANAGEMENT JPA"
+          }
+        ]
+      },
+      "param": "unit",
+      "field": "unit"
+    }
+  ]
+}

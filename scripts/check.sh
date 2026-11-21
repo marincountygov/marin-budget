@@ -27,6 +27,12 @@ if [[ -f "$ROOT_DIR/vendor/marinos/audit-buttons.py" ]]; then
 else
   printf 'SKIP: vendor/marinos/audit-buttons.py is missing (shell older than 1.18.0); the button audit was not run.\n' >&2
 fi
+# Every filter column is drawn by the shell from a filters.json that follows the schema; no hand-written filter column.
+if [[ -f "$ROOT_DIR/vendor/marinos/audit-filter-column.py" ]]; then
+  python3 "$ROOT_DIR/vendor/marinos/audit-filter-column.py" "$ROOT_DIR" --fail
+else
+  printf 'SKIP: vendor/marinos/audit-filter-column.py is missing (shell older than 2.1.0); the filter column audit was not run.\n' >&2
+fi
 # Lists copy, download, file reading and upload code the app does itself; it must list nothing.
 if [[ -f "$ROOT_DIR/vendor/marinos/audit-shared-helpers.py" ]]; then
   python3 "$ROOT_DIR/vendor/marinos/audit-shared-helpers.py" "$ROOT_DIR" --fail
@@ -43,20 +49,19 @@ if command -v node >/dev/null 2>&1; then
   node --check "$ROOT_DIR/scripts/budget-shell.js"
   node --check "$ROOT_DIR/scripts/build-budget-2025.js"
   node --check "$ROOT_DIR/scripts/budget-tool.js"
+  node --check "$ROOT_DIR/scripts/filter-column.js"
   node --check "$ROOT_DIR/scripts/budget-2025-org.js"
   node --check "$ROOT_DIR/budget/tool.js"
+  node --check "$ROOT_DIR/shared/reports.js"
   node --check "$ROOT_DIR/scripts/build-capital.js"
   node --check "$ROOT_DIR/scripts/build-dashboard.js"
   node --check "$ROOT_DIR/shared/page-data.js"
   node --check "$ROOT_DIR/shared/app-home.js"
   node --check "$ROOT_DIR/shared/gate.js"
-  node --check "$ROOT_DIR/shared/insights.js"
-  node --check "$ROOT_DIR/shared/search-layout.js"
   node --check "$ROOT_DIR/capital/projects.js"
-  node --check "$ROOT_DIR/scripts/insights.js"
   node --check "$ROOT_DIR/scripts/clean-text.js"
   node --check "$ROOT_DIR/scripts/budget-data.js"
-  node --test "$ROOT_DIR/tests/clean-text.test.js" "$ROOT_DIR/tests/budget-data.test.js"
+  node --test "$ROOT_DIR/tests/clean-text.test.js" "$ROOT_DIR/tests/budget-data.test.js" "$ROOT_DIR/tests/reports.test.js"
   python3 "$ROOT_DIR/tests/test_generated.py"
   python3 "$ROOT_DIR/tests/test_budget_pages.py"
 else

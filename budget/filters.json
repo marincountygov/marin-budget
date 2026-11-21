@@ -1,0 +1,310 @@
+{
+  "$schema": "../vendor/marinos/filter-panel.schema.json",
+  "schemaVersion": "1.0.0",
+  "search": {
+    "id": "line-search",
+    "fields": [
+      "title",
+      "area",
+      "department",
+      "kind"
+    ],
+    "match": "phrase"
+  },
+  "groups": [
+    {
+      "type": "radio",
+      "id": "book",
+      "label": "Budget books",
+      "options": {
+        "values": [
+          {
+            "value": "./index.html",
+            "label": "FY 2026-27 Proposed"
+          },
+          {
+            "value": "./fy2025-26/index.html",
+            "label": "FY 2025-26 Final"
+          }
+        ]
+      },
+      "default": "./index.html",
+      "param": "book"
+    },
+    {
+      "type": "checkbox",
+      "id": "measure",
+      "label": "Show",
+      "collapsed": false,
+      "default": [
+        "exp"
+      ],
+      "options": {
+        "values": [
+          {
+            "value": "exp",
+            "label": "Total expenditures"
+          },
+          {
+            "value": "rev",
+            "label": "Revenues"
+          },
+          {
+            "value": "ncc",
+            "label": "Net County cost"
+          }
+        ]
+      },
+      "param": "measure",
+      "separator": ","
+    },
+    {
+      "type": "checkbox",
+      "id": "year",
+      "label": "Years",
+      "collapsed": false,
+      "default": [
+        "2"
+      ],
+      "options": {
+        "values": [
+          {
+            "value": "0",
+            "label": "FY 2024-25 Actuals"
+          },
+          {
+            "value": "1",
+            "label": "FY 2025-26 Approved"
+          },
+          {
+            "value": "2",
+            "label": "FY 2026-27 Proposed"
+          }
+        ]
+      },
+      "param": "year",
+      "separator": ","
+    },
+    {
+      "type": "checkbox",
+      "id": "change",
+      "label": "Compare",
+      "collapsed": false,
+      "default": [],
+      "options": {
+        "values": [
+          {
+            "value": "1",
+            "label": "Show the change between years"
+          }
+        ]
+      },
+      "param": "change",
+      "separator": ","
+    },
+    {
+      "type": "checkbox",
+      "id": "area",
+      "label": "Service areas",
+      "allLabel": "All service areas",
+      "options": {
+        "values": [
+          {
+            "value": "Administration and Finance",
+            "label": "Administration and Finance"
+          },
+          {
+            "value": "Community Development and Public Works",
+            "label": "Community Development and Public Works"
+          },
+          {
+            "value": "Community Services",
+            "label": "Community Services"
+          },
+          {
+            "value": "Health and Human Services",
+            "label": "Health and Human Services"
+          },
+          {
+            "value": "Public Safety",
+            "label": "Public Safety"
+          }
+        ]
+      },
+      "param": "area",
+      "field": "area"
+    },
+    {
+      "type": "checkbox",
+      "id": "department",
+      "label": "Departments and divisions",
+      "allLabel": "All departments and divisions",
+      "options": {
+        "values": [
+          {
+            "value": "Agriculture",
+            "label": "Agriculture"
+          },
+          {
+            "value": "Agriculture, Weights and Measures",
+            "label": "Agriculture, Weights and Measures"
+          },
+          {
+            "value": "Assessor, Recorder, County Clerk",
+            "label": "Assessor, Recorder, County Clerk"
+          },
+          {
+            "value": "Behavioral Health and Recovery Services",
+            "label": "Behavioral Health and Recovery Services"
+          },
+          {
+            "value": "Board of Supervisors",
+            "label": "Board of Supervisors"
+          },
+          {
+            "value": "Building and Safety",
+            "label": "Building and Safety"
+          },
+          {
+            "value": "Child Support Services",
+            "label": "Child Support Services"
+          },
+          {
+            "value": "Community Development Agency",
+            "label": "Community Development Agency"
+          },
+          {
+            "value": "County Counsel",
+            "label": "County Counsel"
+          },
+          {
+            "value": "Cultural Services",
+            "label": "Cultural Services"
+          },
+          {
+            "value": "Department of Finance",
+            "label": "Department of Finance"
+          },
+          {
+            "value": "Digital, Innovation and Transformation",
+            "label": "Digital, Innovation and Transformation"
+          },
+          {
+            "value": "District Attorney",
+            "label": "District Attorney"
+          },
+          {
+            "value": "Elections (Registrar of Voters)",
+            "label": "Elections (Registrar of Voters)"
+          },
+          {
+            "value": "Employee and Labor Relations",
+            "label": "Employee and Labor Relations"
+          },
+          {
+            "value": "Fire Department",
+            "label": "Fire Department"
+          },
+          {
+            "value": "General Administration",
+            "label": "General Administration"
+          },
+          {
+            "value": "Health and Human Services",
+            "label": "Health and Human Services"
+          },
+          {
+            "value": "Homelessness and Coordinated Care",
+            "label": "Homelessness and Coordinated Care"
+          },
+          {
+            "value": "Human Resources",
+            "label": "Human Resources"
+          },
+          {
+            "value": "Information Services and Technology",
+            "label": "Information Services and Technology"
+          },
+          {
+            "value": "Learning and Organizational Development",
+            "label": "Learning and Organizational Development"
+          },
+          {
+            "value": "Marin County Free Library",
+            "label": "Marin County Free Library"
+          },
+          {
+            "value": "Office of the County Executive",
+            "label": "Office of the County Executive"
+          },
+          {
+            "value": "Parks",
+            "label": "Parks"
+          },
+          {
+            "value": "Probation",
+            "label": "Probation"
+          },
+          {
+            "value": "Public Defender",
+            "label": "Public Defender"
+          },
+          {
+            "value": "Public Health",
+            "label": "Public Health"
+          },
+          {
+            "value": "Public Works",
+            "label": "Public Works"
+          },
+          {
+            "value": "Retirement",
+            "label": "Retirement"
+          },
+          {
+            "value": "Risk Management",
+            "label": "Risk Management"
+          },
+          {
+            "value": "Sheriff",
+            "label": "Sheriff"
+          },
+          {
+            "value": "Social Services",
+            "label": "Social Services"
+          },
+          {
+            "value": "UC Cooperative Extension (Farm Advisor)",
+            "label": "UC Cooperative Extension (Farm Advisor)"
+          },
+          {
+            "value": "Weights and Measures",
+            "label": "Weights and Measures"
+          }
+        ]
+      },
+      "param": "department",
+      "field": "department"
+    },
+    {
+      "type": "checkbox",
+      "id": "kind",
+      "label": "Types",
+      "allLabel": "All types",
+      "options": {
+        "values": [
+          {
+            "value": "Department",
+            "label": "Department"
+          },
+          {
+            "value": "Division",
+            "label": "Division"
+          }
+        ]
+      },
+      "param": "kind",
+      "field": "kind"
+    }
+  ]
+}

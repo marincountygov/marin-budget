@@ -13,7 +13,7 @@ const { shell, esc } = require('./budget-shell');
 
 const ROOT = path.join(__dirname, '..');
 const LIB = './vendor/chart.min.js';
-const { YEARS, LATEST, PREVIOUS, kpi, millions, chart, charts, val, table, num, money, signed } = bd;
+const { YEARS, LATEST, PREVIOUS, CHANGE, CHANGE_IN, kpi, millions, chart, charts, val, table, num, money, signed } = bd;
 const readJson = (f) => JSON.parse(fs.readFileSync(path.join(ROOT, f), 'utf8'));
 const graph = (f) => readJson(f)['@graph'];
 const more = (href, label) => `<p class="org-dash__more"><a href="${href}">${esc(label)}</a></p>`;
@@ -33,7 +33,7 @@ function budgetSection() {
   const e26 = val(now.expTotal);
   const e25 = before && before.expTotal ? val(before.expTotal) : null;
   const kpis = [kpi('Expenditures, FY 2026-27', millions(e26)), kpi('Revenues, FY 2026-27', millions(val(now.revTotal)))];
-  if (e25) kpis.push(kpi('Change in expenditures', `${(((e26 - e25) / e25) * 100).toFixed(1)}%`));
+  if (e25) kpis.push(kpi(CHANGE_IN, `${(((e26 - e25) / e25) * 100).toFixed(1)}%`));
   const totalOf = (a, key) => (data.idx.get(key).get(a['@id']) || new Map()).get('expenditure-total');
   const areas = orgs.filter((o) => o.organizationClassification === 'serviceArea')
     .map((a) => ({ a, then: val(totalOf(a, PREVIOUS)), v: val(totalOf(a, LATEST)) })).filter((x) => x.v).sort((p, q) => bd.byName(p.a.name, q.a.name));
@@ -41,7 +41,7 @@ function budgetSection() {
   const spec = { labels: areas.map((x) => x.a.name), series: [{ name: YEARS[1].label, values: areas.map((x) => x.then || 0) }, { name: YEARS[2].label, values: areas.map((x) => x.v) }],
     summary: `${largest.a.name} is the largest service area at ${millions(largest.v)} of ${millions(e26)} in FY 2026-27.` };
   const pct = (x) => (x.then ? `${(((x.v - x.then) / x.then) * 100).toFixed(1)}%` : '–');
-  const changes = table('Change in expenditures by service area', ['Service area', YEARS[1].label, YEARS[2].label, 'Change', 'Change, percent'],
+  const changes = table('Change in expenditures by service area', ['Service area', YEARS[1].label, YEARS[2].label, CHANGE, `${CHANGE}, percent`],
     areas.map((x) => `<tr><th scope="row">${esc(x.a.name)}</th>${num(x.then, money(x.then))}${num(x.v, money(x.v))}${num(x.v - x.then, signed(x.v - x.then))}<td class="budget-table__num">${pct(x)}</td></tr>`));
   return section('budget', 'Budget', `<div class="mm-stats-kpis">${kpis.join('')}</div>${charts(chart('chart-dash-areas', 'Expenditures by service area', 'bars', spec, false, LIB))}${changes}` +
     shortcuts([['./budget/?sort=amount', 'Departments, largest first'], ['./budget/?tab=compare', 'Compare departments'], ['./budget/funds.html', 'Funds'], ['./budget/fy2025-26/', 'FY 2025-26 Final Budget']]), './budget/', 'All Budget');
@@ -66,7 +66,21 @@ function capitalSection() {
     shortcuts([['./capital/projects.html?gap=gap&sort=gap', 'Projects needing funding'], ['./capital/projects.html?status=New', 'New projects'], ['./capital/projects.html?sort=cost', 'Largest projects'], ['./capital/index.html', 'Categories and fund sources']]), './capital/projects.html', 'All Capital improvement plan');
 }
 
+
+// ---- Contracts: the value of the County's contracts and where it goes -----------------------------------------
+function contractsSection() {
+  const vd = require('./contracts-data');
+  const data = vd.load();
+  if (!data) return '';
+  const rows = data.contracts;
+  const top = vd.vendorsOf(rows).slice(0, 10);
+  const spec = { labels: top.map((g) => g.name), series: [{ name: 'Contract value', values: top.map((g) => g.value) }],
+    summary: `${top[0].name} is the largest vendor at ${vd.inMillions(top[0].value)}.` };
+  return section('contracts', 'Contracts', `${vd.kpis(rows)}${charts(chart('chart-dash-vendors', 'Top 10 vendors by contract value', 'bars', spec, false, LIB))}` +
+    shortcuts([['./contracts/?status=Active', 'Active contracts'], ['./contracts/?view=vendors', 'Vendors'], ['./contracts/?view=stats', 'Contract stats']]), './contracts/', 'All Contracts');
+}
+
 const body = `<article class="content"><h1 class="doc-title">Dashboard</h1>` +
-  `<div class="org-dashboard">${budgetSection()}${capitalSection()}</div></article>`;
-fs.writeFileSync(path.join(ROOT, 'index.html'), shell('Dashboard', 'The County of Marin budget and Capital Improvement Plan at a glance.', [['Marin Budget', null]], body, 'root'));
+  `<div class="org-dashboard">${budgetSection()}${capitalSection()}${contractsSection()}</div></article>`;
+fs.writeFileSync(path.join(ROOT, 'index.html'), shell('Dashboard', 'The County of Marin budget, Capital Improvement Plan and contracts at a glance.', [['Marin Budget', null]], body, 'root'));
 console.log('Wrote index.html.');

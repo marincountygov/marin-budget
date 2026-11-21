@@ -17,7 +17,7 @@ const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replac
 
 function copyData(src) {
   fs.mkdirSync(path.join(DIR, 'source'), { recursive: true });
-  for (const f of FILES) if (fs.existsSync(path.join(src, f))) fs.copyFileSync(path.join(src, f), path.join(DIR, f));
+  for (const f of [...FILES, path.join('source', 'budget-changes.json')]) if (fs.existsSync(path.join(src, f))) fs.copyFileSync(path.join(src, f), path.join(DIR, f));
 }
 
 // The column headings are the book's own. The final edition still prints FY 2026-27 as "Proposed".
@@ -27,6 +27,9 @@ const YEARS = [
   { key: 'fy2026-27-approved', label: 'FY 2026-27 Proposed' },
 ];
 const LATEST = YEARS[2].key;
+// What a change compares: the second book's year against the third's (approved to proposed), said wherever a change is shown.
+const CHANGE = `Change, ${YEARS[1].label} to ${YEARS[2].label}`;
+const CHANGE_IN = `Change in expenditures, ${YEARS[1].label} to ${YEARS[2].label}`;
 const PREVIOUS = YEARS[1].key;
 
 function load() {
@@ -50,7 +53,10 @@ function load() {
   for (const l of lines) if (l.program) (byProgram.get(l.program['@id']) || byProgram.set(l.program['@id'], []).get(l.program['@id'])).push(l);
   const fundFile = path.join(DIR, 'funds.jsonld');
   const funds = fs.existsSync(fundFile) ? graph('funds.jsonld') : [];
-  return { lines, byId, idx, byProgram, funds, fundById: new Map(funds.map((f) => [f['@id'], f])), display, book: display.url, bookTitle: display.book };
+  // What the book says changed in each department's budget, by department: { pages, paragraphs }.
+  const changesFile = path.join(DIR, 'source', 'budget-changes.json');
+  const changes = fs.existsSync(changesFile) ? JSON.parse(fs.readFileSync(changesFile, 'utf8')) : {};
+  return { lines, byId, idx, byProgram, funds, changes, fundById: new Map(funds.map((f) => [f['@id'], f])), display, book: display.url, bookTitle: display.book };
 }
 
 // The lines an organization has, with the lines they are made of, for the JSON on its page.
@@ -186,7 +192,7 @@ function organizationCsvs(data, org, children) {
   const disp = (data.display.organizations || {})[org['@id']] || {};
   const ncc = (disp.department || {})['Net County Cost'];
   if (now && now.expTypes.length) {
-    const rows = [['Section', 'Line', YEARS[1].label, YEARS[2].label, 'Change']];
+    const rows = [['Section', 'Line', YEARS[1].label, YEARS[2].label, CHANGE]];
     const add = (section, name, a, b) => rows.push([section, name, a, b, b - a]);
     const lines = (f, kind) => (f ? f[kind] : []);
     for (const [section, kind, total, totalLabel] of [['Revenues', 'revTypes', 'revTotal', 'Total revenues'], ['Expenditures', 'expTypes', 'expTotal', 'Total expenditures']]) {
@@ -319,7 +325,7 @@ function areaBudget(data, area, { orgById, orgHref }) {
     totals, pages, csvRows, ad,
     chart: charts(chart(`chart-${slugOfId(area['@id'])}`, `Expenditures by department, FY 2026-27`, 'bars', { keepOrder: true, labels: series.map((one) => one.name), series: [{ name: 'FY 2026-27 Proposed', values: series.map((one) => one.values[2]) }],
       summary: `${top.name} is the largest share, ${Math.round((top.values[2] / val(totals[2])) * 100)}% of ${inMillions(val(totals[2]))} in FY 2026-27.` })),
-    table: table(`Expenditures, ${area.name}`, ['', ...YEARS.map((y) => y.label), 'Change', 'FTE'], rows, foot),
+    table: table(`Expenditures, ${area.name}`, ['', ...YEARS.map((y) => y.label), CHANGE, 'FTE'], rows, foot),
   };
 }
 const slugOfId = (id) => id.split(/[/:]/).pop().replace(/^service-area-/, '');
@@ -336,12 +342,12 @@ function countywideOverview(data, county) {
   const balance = cw.transfers['Use of Fund Balance'];
   const pct = (((e26 - e25) / e25) * 100).toFixed(1);
   const k = [kpi('Expenditures, FY 2026-27', millions(e26)), kpi('Revenues, FY 2026-27', millions(r26)),
-    kpi('Change in expenditures', `${signed(e26 - e25).replace(/\$([\d,]+)/, (m, n) => '$' + (Number(n.replace(/,/g, '')) / 1e6).toFixed(1) + 'M')} (${pct}%)`),
+    kpi(CHANGE_IN, `${signed(e26 - e25).replace(/\$([\d,]+)/, (m, n) => '$' + (Number(n.replace(/,/g, '')) / 1e6).toFixed(1) + 'M')} (${pct}%)`),
     kpi('General Fund and HHS Operating Fund', millions(gen.fy2026_27)), kpi('Use of fund balance', millions(balance.fy2026_27))];
   const find = (f, kind, n) => val(f[kind].find((l) => label(l) === n)) || 0;
   const typeNames = (kind) => [...new Set([...before[kind], ...now[kind]].map(label))];
   const rows = [];
-  const csv = [['Section', 'Line', YEARS[1].label, YEARS[2].label, 'Change']];
+  const csv = [['Section', 'Line', YEARS[1].label, YEARS[2].label, CHANGE]];
   const add = (section, name, a, b, total = false) => {
     rows.push(`<tr${total ? ' class="budget-table__total"' : ''}><th scope="row">${esc(name)}</th>${num(a, money(a))}${num(b, money(b))}${num(b - a, signed(b - a))}</tr>`);
     csv.push([section, name, a, b, b - a]);
@@ -355,7 +361,7 @@ function countywideOverview(data, county) {
   // The two main operating funds together, as the book prints them.
   const gRows = ['Revenues', 'Prior Year Fund Balance', 'Net Transfers', 'Total General/HHS Fund Sources', 'Ongoing', 'One Time', 'Total General/HHS Fund Uses'];
   const gLabel = { 'Total General/HHS Fund Sources': 'Total sources', 'Total General/HHS Fund Uses': 'Total uses', 'Prior Year Fund Balance': 'Prior year fund balance', 'Net Transfers': 'Net transfers', 'One Time': 'One-time' };
-  const gTable = table('General Fund and HHS Operating Fund', ['', YEARS[1].label, YEARS[2].label, 'Change'], gRows.map((r) => {
+  const gTable = table('General Fund and HHS Operating Fund', ['', YEARS[1].label, YEARS[2].label, CHANGE], gRows.map((r) => {
     const v = cw.generalAndHhsFunds[r];
     return `<tr${r.startsWith('Total') ? ' class="budget-table__total"' : ''}><th scope="row">${esc(gLabel[r] || r)}</th>${num(v.fy2025_26, money(v.fy2025_26))}${num(v.fy2026_27, money(v.fy2026_27))}${num(v.fy2026_27 - v.fy2025_26, signed(v.fy2026_27 - v.fy2025_26))}</tr>`;
   }));
@@ -368,29 +374,11 @@ function countywideOverview(data, county) {
   const pages = new Set([20, 21]);
   const html = `<section class="section" aria-labelledby="overview"><h2 id="overview">Overview</h2><div class="mm-stats-kpis">${k.join('')}</div>` +
     `<h3 id="overview-types">Revenues and expenditures</h3>${charts(pie('chart-county-revenues', 'Revenues by type, FY 2026-27', 'revTypes', now.revTotal), pie('chart-county-expenditures', 'Expenditures by type, FY 2026-27', 'expTypes', now.expTotal))}` +
-    table('Revenues and expenditures', ['', YEARS[1].label, YEARS[2].label, 'Change'], rows) +
+    table('Revenues and expenditures', ['', YEARS[1].label, YEARS[2].label, CHANGE], rows) +
     `<h3 id="overview-funds">General Fund and HHS Operating Fund</h3>${gTable}` +
     `<p class="app-help-text">The General Fund and the Health and Human Services Operating Fund together are the County's main operating funds. Revenues are shown as positive amounts.</p></section>`;
   return { html, csv, pages };
 }
-
-// Budget tables as lists of objects, for the Insights prompt: the rows of the CSVs, with their headings as keys.
-const objects = (rows) => rows.slice(1).map((r) => Object.fromEntries(rows[0].map((h, i) => [h || 'Line', r[i]])));
-function organizationInsights(data, org, kids, parent) {
-  const out = {};
-  for (const c of organizationCsvs(data, org, kids)) out[c.label] = objects(c.rows);
-  const fte = fteFor(data, org, parent);
-  if (fte != null) out['full-time equivalent staff, FY 2026-27'] = fte;
-  return out;
-}
-function programInsights(data, program) {
-  const rows = programCsv(data, program);
-  return rows ? { 'by fund group': objects(rows) } : null;
-}
-function areaInsights(data, csvRows) {
-  return { 'expenditures by department or division': objects([['Service area', 'Department or division', ...YEARS.map((y) => y.label), 'Change', 'FTE'], ...csvRows]) };
-}
-
 
 // ---- Funds: a page for each ------------------------------------------------------------------------------
 // The names in the data are title-cased by a program ("Hhs", "Mcera"); a name is shown the way the County writes it.
@@ -427,8 +415,7 @@ function fundBudget(data, fund, { orgById, orgHref, programName, lib }) {
     return [d && d.organizationClassification !== 'government' ? d.name : 'Non Departmental', p || r.label, r.label, r.exp_fy2025_26, r.exp_fy2026_27, r.rev_fy2025_26, r.rev_fy2026_27, r.ncc_fy2025_26, r.ncc_fy2026_27];
   })];
   return { kpis, pages, pie, body, foot, head, depts, csvDepartments, csvPrograms, nameOf,
-    lines: data.lines.filter((l) => l.fund && l.fund['@id'] === fund['@id']),
-    insights: { 'by department': objects(csvDepartments) } };
+    lines: data.lines.filter((l) => l.fund && l.fund['@id'] === fund['@id']) };
 }
 
 // A department's (or division's) Budget tab. Returns '' when the book has nothing for it.
@@ -461,7 +448,7 @@ function organizationBudget(data, org, children, orgUrl, parent) {
   if (now && now.row && actual && actual.row) {
     const vals = YEARS.map((y) => val((figures(data, org['@id'], y.key) || {}).row));
     [YEARS.map((y) => (figures(data, org['@id'], y.key) || {}).row)].flat().forEach(note);
-    parts.push(`<h3 id="budget-over-time">Expenditures</h3>` + charts(chart('budget-chart-years', 'Total expenditures', 'columns', { labels: YEARS.map((y) => y.label), series: [{ name: 'Expenditures', values: vals }], summary: `Expenditures ${vals[2] >= vals[0] ? 'rise' : 'fall'} from ${inMillions(vals[0])} in ${YEARS[0].label.replace(' Actuals', '')} to ${inMillions(vals[2])} in ${YEARS[2].label.replace(' Proposed', '')}.` })) + table('Expenditures over three years', ['', ...YEARS.map((y) => y.label), 'Change', 'FTE'],
+    parts.push(`<h3 id="budget-over-time">Expenditures</h3>` + charts(chart('budget-chart-years', 'Total expenditures', 'columns', { labels: YEARS.map((y) => y.label), series: [{ name: 'Expenditures', values: vals }], summary: `Expenditures ${vals[2] >= vals[0] ? 'rise' : 'fall'} from ${inMillions(vals[0])} in ${YEARS[0].label.replace(' Actuals', '')} to ${inMillions(vals[2])} in ${YEARS[2].label.replace(' Proposed', '')}.` })) + table('Expenditures over three years', ['', ...YEARS.map((y) => y.label), CHANGE, 'FTE'],
       [`<tr><th scope="row">Expenditures</th>${vals.map((v) => num(v, money(v))).join('')}${num(change(vals[1], vals[2]), signed(change(vals[1], vals[2])))}${num(fte, fteText(fte))}</tr>`]));
     if (mismatch) parts.push(`<p class="app-help-text">The service-area table in the budget book prints ${money(now.row.amount.value)} for this department in FY 2026-27. The department's own page prints ${money(now.expTotal.amount.value)}, which matches the types below. Both are as printed.</p>`);
   }
@@ -478,7 +465,7 @@ function organizationBudget(data, org, children, orgUrl, parent) {
     const divLatest = [...divSeries].sort((x, y) => y.values[2] - x.values[2]);
     const divWhole = divSeries.reduce((n, one) => n + one.values[2], 0);
     parts.push(`<h3 id="budget-divisions">Divisions</h3>` + charts(chart('budget-chart-divisions', 'Expenditures by division, FY 2026-27', 'bars', { keepOrder: true, labels: divSeries.map((one) => one.name), series: [{ name: 'FY 2026-27 Proposed', values: divSeries.map((one) => one.values[2]) }],
-      summary: `${divLatest[0].name} is the largest share, ${Math.round((divLatest[0].values[2] / divWhole) * 100)}% of ${inMillions(divWhole)} in FY 2026-27.` })) + table('Expenditures by division', ['Division', ...YEARS.map((y) => y.label), 'Change', 'FTE'], rows));
+      summary: `${divLatest[0].name} is the largest share, ${Math.round((divLatest[0].values[2] / divWhole) * 100)}% of ${inMillions(divWhole)} in FY 2026-27.` })) + table('Expenditures by division', ['Division', ...YEARS.map((y) => y.label), CHANGE, 'FTE'], rows));
   }
 
   // Revenues and expenditures by type (the department page of the book).
@@ -515,7 +502,7 @@ function organizationBudget(data, org, children, orgUrl, parent) {
     const typeSeries = [PREVIOUS, LATEST].map((key, i) => ({ name: YEARS[i + 1].label, values: typeNames.map((n) => val(find(get(i ? now : before, 'expTypes'), n)) || 0) }));
     parts.push(`<h3 id="budget-by-type">Revenues and expenditures</h3>` + charts(
       chart('budget-chart-totals', 'Revenues, expenditures and net County cost', 'columns', { labels: [YEARS[1].label, YEARS[2].label], series: totalSeries, summary: `In FY 2026-27: ${totalSeries.map((one) => `${one.name === 'Net County cost' ? one.name : one.name.toLowerCase()} ${inMillions(one.values[1])}`).join(', ')}.` }),
-      chart('budget-chart-types', 'Expenditures by type', 'bars', { labels: typeNames, series: typeSeries, summary: `${typeNames[typeSeries[1].values.indexOf(Math.max(...typeSeries[1].values))]} is the largest type at ${inMillions(Math.max(...typeSeries[1].values))} in FY 2026-27.` })) + table('Revenues and expenditures by type', ['', YEARS[1].label, YEARS[2].label, 'Change'], rows));
+      chart('budget-chart-types', 'Expenditures by type', 'bars', { labels: typeNames, series: typeSeries, summary: `${typeNames[typeSeries[1].values.indexOf(Math.max(...typeSeries[1].values))]} is the largest type at ${inMillions(Math.max(...typeSeries[1].values))} in FY 2026-27.` })) + table('Revenues and expenditures by type', ['', YEARS[1].label, YEARS[2].label, CHANGE], rows));
   }
   if (finalBook) parts.push(finalBook);
   if (!parts.length) return '';
@@ -524,4 +511,4 @@ function organizationBudget(data, org, children, orgUrl, parent) {
   return `<section class="section" id="budget" data-tab-section="budget" aria-labelledby="budget-heading" hidden><h2 id="budget-heading">Budget</h2>${parts.join('')}</section>`;
 }
 
-module.exports = { byName, fundName, fundCode, fundSlug, fundBudget, BUDGET_NOTE, organizationInsights, programInsights, areaInsights, countywideOverview, programCsv, sourceList, programKpis, programRows, programBudget, areaBudget, organizationCsvs, linesFor, chart, charts, organizationKpis, organizationTypeChart, fteFor, fteText, pagesText, copyData, load, organizationBudget, figures, label, val, money, millions, signed, change, num, table, kpi, pageLink, esc, YEARS, LATEST, PREVIOUS };
+module.exports = { CHANGE, CHANGE_IN, byName, fundName, fundCode, fundSlug, fundBudget, BUDGET_NOTE, countywideOverview, programCsv, sourceList, programKpis, programRows, programBudget, areaBudget, organizationCsvs, linesFor, chart, charts, organizationKpis, organizationTypeChart, fteFor, fteText, pagesText, copyData, load, organizationBudget, figures, label, val, money, millions, signed, change, num, table, kpi, pageLink, esc, YEARS, LATEST, PREVIOUS };

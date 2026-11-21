@@ -53,9 +53,12 @@ class BudgetPageTests(unittest.TestCase):
         tool = (ROOT / "capital/projects.html").read_text(encoding="utf-8")
         self.assertEqual(len(re.findall(r'<li class="app-card mm-card" data-project=', tool)), len(projects))
         self.assertEqual(len(re.findall(r'<tr data-project=', tool)), len(projects))
-        for facet in ("category", "subcategory", "status", "year", "size", "gap"):
-            self.assertIn(f'id="facet-{facet}"', tool)
-        for needle in ('id="active-filters"', 'id="selection-kpis"', 'data-view="table"', 'data-sort="cost"', 'src="projects.js?v='):
+        # The filter column is drawn by the shell from capital/filters.json: the page holds only the element, and no hand-written sidebar.
+        filters = json.loads((ROOT / "capital/filters.json").read_text(encoding="utf-8"))
+        self.assertEqual([g["id"] for g in filters["groups"]], ["category", "subcategory", "status", "year", "size", "gap"])
+        self.assertIn('data-filter-column="filters.json"', tool)
+        self.assertNotIn("search-sidebar", tool)
+        for needle in ('id="active-filters" data-filter-results', 'id="selection-kpis"', 'id="selection-kpis"', 'data-view="table"', 'data-sort="cost"', 'src="projects.js?v='):
             self.assertIn(needle, tool)
         # The landing page shows the book's all-categories total.
         all_total = next(c for c in data["categoryTotals"] if c["label"] == "All Project Categories Total")["total"]
@@ -104,12 +107,19 @@ class BudgetPageTests(unittest.TestCase):
         unit_lines = [x for x in rows(8) if x["code"]]
         self.assertEqual(len(re.findall(r'<li class="app-card mm-card" data-line=', lines)), len(unit_lines))
         self.assertEqual(len(re.findall(r'<tr data-line=', lines)), len(unit_lines))
-        for needle in ('id="facet-function"', 'id="facet-unit"', 'id="stats-toggle"', 'id="notes-toggle"', 'id="line-notes"', 'id="book-filter"', 'id="column-filter"', 'budget/tool.js?v='):
+        for needle in ('id="stats-toggle"', 'data-filter-column="filters.json"', 'data-filter-results', 'budget/tool.js?v='):
             self.assertIn(needle, lines)
+        self.assertNotIn("search-sidebar", lines)
+        # The book is a choice of one by radio buttons and the year by a drop-down (four years); the functions, activities and budget units are checkbox lists.
+        filters = json.loads((base / "filters.json").read_text(encoding="utf-8"))
+        self.assertEqual([(g["id"], g["type"]) for g in filters["groups"]], [("book", "radio"), ("year", "select"), ("function", "checkbox"), ("activity", "checkbox"), ("unit", "checkbox")])
+        self.assertEqual(filters["groups"][0]["default"], "./index.html")
         notes = json.loads((base / "data/notes.json").read_text(encoding="utf-8"))
+        self.assertNotIn('id="notes-toggle"', lines)
+        data_page = (ROOT / "data/index.html").read_text(encoding="utf-8")
         for text in notes["notes"]:
-            self.assertIn(text, lines)
-        self.assertEqual(len(notes["totalsThatDifferFromTheirParts"]), lines.count('<th scope="row">FY 20'))
+            self.assertIn(text, data_page)
+        self.assertEqual(len(notes["totalsThatDifferFromTheirParts"]), data_page.count('<th scope="row">FY 20'))
         # A card's title stays in the tool: it applies that line as a filter and opens Stats.
         self.assertRegex(lines, r'<h3 class="mm-card__title"><a href="\?unit=[^"]+&amp;tab=stats">')
         # Cited pages link to the book at the right PDF page (printed page + 8): Schedule 1 is printed page 1, PDF page 9.
@@ -119,7 +129,8 @@ class BudgetPageTests(unittest.TestCase):
         nine = (base / "schedule-9.html").read_text(encoding="utf-8")
         self.assertEqual(len(re.findall(r'<h2 id="s\d+-100-', nine)), 1)
         # The Budget page links to the book's pages, and the JSON-LD loads as schemaGov entities.
-        self.assertIn("fy2025-26/index.html", (ROOT / "budget/index.html").read_text(encoding="utf-8"))
+        # The other budget book is one of the choices of the book in the filter column (budget/filters.json).
+        self.assertIn("fy2025-26/index.html", (ROOT / "budget/filters.json").read_text(encoding="utf-8"))
         budgets = json.loads((base / "data/budgets-2025-26.jsonld").read_text(encoding="utf-8"))["@graph"]
         self.assertEqual([b["budgetPhase"] for b in budgets], ["executed", "adjusted", "proposed", "approved"])
 
@@ -139,9 +150,10 @@ class BudgetPageTests(unittest.TestCase):
         self.assertIn("$902.6M", text)
         self.assertIn("$855.6M", text)
         self.assertIn("4.2%", text)
-        # The overview's pies and table come from the same figures, and cite pages 20 and 21 of the book.
+        # The overview's pies and table come from the same figures; the Data page cites pages 20 and 21 of the book.
         self.assertIn("chart-county-expenditures-data", text)
-        self.assertRegex(text, r"pages <a [^>]*#page=22\">20</a>, <a [^>]*#page=23\">21</a>")
+        data = (ROOT / "data/index.html").read_text(encoding="utf-8")
+        self.assertRegex(data, r"pages <a [^>]*#page=22\">20</a>, <a [^>]*#page=23\">21</a>")
 
     def test_every_fund_has_a_page(self):
         funds = (ROOT / "budget/funds.html").read_text(encoding="utf-8")
@@ -153,7 +165,10 @@ class BudgetPageTests(unittest.TestCase):
             self.assertTrue(page.exists(), link)
             text = page.read_text(encoding="utf-8")
             labels = re.findall(r">([^<]+)</a>", re.search(r'<nav id="page-tabs"[^>]*>(.*?)</nav>', text, re.S).group(1))
-            self.assertEqual([l for l in labels if l not in ("Budget",)], ["Dashboard", "About", "Data", "Insights"], link)
+            # Only a fund with figures has a Dashboard tab; the others open on About.
+            expected = ["Dashboard", "About", "Data"] if link.startswith("1000-") else ["About", "Data"]
+            self.assertEqual([l for l in labels if l not in ("Budget",)], expected, link)
+            self.assertNotIn("Insights", text, link)
         # Only the General Fund has figures, from the program rows that name it; the others say what the data says.
         general = (ROOT / "budget/funds/1000-general-fund.html").read_text(encoding="utf-8")
         self.assertIn('data-tab-section="budget"', general)

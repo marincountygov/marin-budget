@@ -10,6 +10,10 @@ cd "$ROOT"
 node scripts/build-budget.js "$SRC"
 node scripts/build-budget-2025.js "$SRC"
 node scripts/build-capital.js "$SRC/cip"
+python3 scripts/build_contracts_view.py
+node scripts/build-contracts.js
+node scripts/build-reports.js
+node scripts/build-data.js
 node scripts/build-dashboard.js
 # The shell reads marin.yml next to the page for the app's status and audience, so every folder of pages has a copy.
-for dir in budget budget/fy2025-26 budget/funds capital capital/projects; do cp marin.yml "$dir/marin.yml"; done
+for dir in budget budget/fy2025-26 budget/funds capital capital/projects contracts contracts/vendors reports data; do cp marin.yml "$dir/marin.yml"; done

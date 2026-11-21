@@ -49,3 +49,32 @@
 .dash-links li::marker {
   content: none;
 }
+
+.drill {
+  margin-top: 0.5rem;
+}
+
+.drill > summary {
+  cursor: pointer;
+}
+
+.drill-list {
+  list-style: none;
+  margin: 0.5rem 0 0;
+  padding: 0 0 0 1rem;
+  border-left: 2px solid currentColor;
+}
+
+.drill-row + .drill-row {
+  margin-top: 0.75rem;
+}
+
+.drill-row .capital-figures {
+  margin-top: 0.25rem;
+}
+
+.reorg-quote {
+  margin: 0.5rem 0 0;
+  padding-left: 1rem;
+  border-left: 2px solid currentColor;
+}

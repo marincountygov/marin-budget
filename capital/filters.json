@@ -1,0 +1,188 @@
+{
+  "$schema": "../vendor/marinos/filter-panel.schema.json",
+  "schemaVersion": "1.0.0",
+  "search": {
+    "id": "project-search",
+    "fields": [
+      "name",
+      "category",
+      "subcategory",
+      "status"
+    ],
+    "match": "phrase"
+  },
+  "groups": [
+    {
+      "type": "checkbox",
+      "id": "category",
+      "label": "Categories",
+      "allLabel": "All categories",
+      "options": {
+        "values": [
+          {
+            "value": "Public Safety",
+            "label": "Public Safety"
+          },
+          {
+            "value": "Water Resources",
+            "label": "Water Resources"
+          },
+          {
+            "value": "Facilities",
+            "label": "Facilities"
+          },
+          {
+            "value": "Transportation",
+            "label": "Transportation"
+          },
+          {
+            "value": "Special Projects",
+            "label": "Special Projects"
+          }
+        ]
+      },
+      "param": "category",
+      "field": "category"
+    },
+    {
+      "type": "checkbox",
+      "id": "subcategory",
+      "label": "Subcategories",
+      "allLabel": "All subcategories",
+      "options": {
+        "values": [
+          {
+            "value": "Drainage",
+            "label": "Drainage"
+          },
+          {
+            "value": "Flood Control",
+            "label": "Flood Control"
+          },
+          {
+            "value": "Parks",
+            "label": "Parks"
+          },
+          {
+            "value": "County Facilities",
+            "label": "County Facilities"
+          },
+          {
+            "value": "Civic Center",
+            "label": "Civic Center"
+          },
+          {
+            "value": "Bike/Ped/Traffic",
+            "label": "Bike/Ped/Traffic"
+          },
+          {
+            "value": "Road & Bridge",
+            "label": "Road & Bridge"
+          },
+          {
+            "value": "Special Projects - Miscellaneous",
+            "label": "Special Projects - Miscellaneous"
+          },
+          {
+            "value": "Studies/Assessments",
+            "label": "Studies/Assessments"
+          }
+        ]
+      },
+      "param": "subcategory",
+      "field": "subcategory"
+    },
+    {
+      "type": "checkbox",
+      "id": "status",
+      "label": "Statuses",
+      "allLabel": "All statuses",
+      "options": {
+        "values": [
+          {
+            "value": "New",
+            "label": "New"
+          },
+          {
+            "value": "Ongoing",
+            "label": "Ongoing"
+          }
+        ]
+      },
+      "param": "status",
+      "field": "status"
+    },
+    {
+      "type": "checkbox",
+      "id": "year",
+      "label": "Funded years",
+      "allLabel": "All years",
+      "options": {
+        "values": [
+          {
+            "value": "fy2026-27",
+            "label": "Proposed FY27"
+          },
+          {
+            "value": "fy2027-28",
+            "label": "Programmed FY28"
+          },
+          {
+            "value": "fy2028-29",
+            "label": "Programmed FY29"
+          },
+          {
+            "value": "fy2029-30",
+            "label": "Programmed FY30"
+          },
+          {
+            "value": "fy2030-31",
+            "label": "Programmed FY31"
+          }
+        ]
+      },
+      "param": "year",
+      "field": "year"
+    },
+    {
+      "type": "checkbox",
+      "id": "size",
+      "label": "Cost estimates",
+      "allLabel": "All cost estimates",
+      "options": {
+        "values": [
+          {
+            "value": "under-1m",
+            "label": "Under $1 million"
+          },
+          {
+            "value": "1m-10m",
+            "label": "$1 million to $10 million"
+          },
+          {
+            "value": "10m-plus",
+            "label": "Over $10 million"
+          }
+        ]
+      },
+      "param": "size",
+      "field": "size"
+    },
+    {
+      "type": "checkbox",
+      "id": "gap",
+      "label": "Funding gaps",
+      "allLabel": "All projects",
+      "options": {
+        "values": [
+          {
+            "value": "gap",
+            "label": "Needs additional funds"
+          }
+        ]
+      },
+      "param": "gap",
+      "field": "gap"
+    }
+  ]
+}

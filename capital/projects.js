@@ -1,14 +1,12 @@
-// The Projects tool: filters, a "Showing" line, live stats for what is selected, sort, and cards or a table.
-// The page holds every project twice, as a card and as a table row, with its figures in data attributes. The shared
-// filter script (shared/search-layout.js) hides the cards that do not match; this script does the rest from
-// the cards still showing. Filters, sort and view are kept in the address, so Copy link shares what is on screen.
-(() => {
+// The Projects tool: the filter column, a "Showing" line, live stats for what is selected, sort, and cards or a table.
+// The page holds every project twice, as a card and as a table row, with its figures in data attributes. The shell draws the
+// filter column from filters.json and matches the projects (column.filter); this script hides the cards that do not match and
+// does the rest from the cards still showing. Filters, sort and view are kept in the address, so Copy link shares what is on screen.
+(async () => {
   const cardsEl = document.getElementById("project-cards");
   const tableWrap = document.getElementById("project-table-wrap");
   const tbody = document.querySelector("#project-table tbody");
-  const emptyEl = document.getElementById("project-empty");
   const summaryEl = document.getElementById("active-filters");
-  const toggle = document.getElementById("filter-toggle");
   const bar = document.querySelector(".search-results .doc-actions");
   const exportEl = document.getElementById("project-export");
   const selectAll = document.getElementById("select-all-checkbox");
@@ -28,6 +26,31 @@
     window.history.replaceState(null, "", next ? `${window.location.pathname}?${next}` : window.location.pathname);
   };
 
+  // ---- the filter column: drawn by the shell from filters.json, which also matches the projects ------------------
+  const column = document.querySelector("[data-filter-column]");
+  const spec = await fetch("filters.json").then((response) => response.json()); // each group's "All" words and its choices' labels
+  const groups = spec.groups.filter((group) => group.field);
+  const labelOf = (group, value) => (group.options.values.find((option) => option.value === value) || { label: value }).label;
+  // What the column matches: one record for each project, with the fields filters.json names.
+  const records = cards.map((card) => ({ project: card.dataset.project, name: card.querySelector(".mm-card__title a").textContent, category: card.dataset.category, subcategory: card.dataset.subcategory,
+    status: card.dataset.facetStatus, year: card.dataset.facetYear.split("|").filter(Boolean), size: card.dataset.facetSize, gap: card.dataset.facetGap }));
+  // An address from before the column was drawn from a file still works: a list in one parameter (a,b), a comma inside a value written %2C.
+  const legacyAddress = () => {
+    const q = params();
+    let changed = false;
+    groups.forEach((group) => {
+      const known = new Set(group.options.values.map((option) => option.value));
+      const raw = q.getAll(group.param);
+      if (raw.length !== 1 || known.has(raw[0])) return;
+      const parts = raw[0].split(",").filter(Boolean).map((v) => v.replace(/%2C/g, ","));
+      if (parts.length && parts.every((v) => known.has(v))) { q.delete(group.param); parts.forEach((v) => q.append(group.param, v)); changed = true; }
+    });
+    if (changed) window.history.replaceState(null, "", `${window.location.pathname}?${q}`);
+  };
+  legacyAddress();
+  if (!column.setOptions) await new Promise((resolve) => column.addEventListener("marin-filter-ready", resolve, { once: true }));
+  const chosen = (group) => column.filterState.groups[group.id] || [];
+
   // ---- sort and view ------------------------------------------------------------------------------------------
   const SORTS = {
     book: (a, b) => a.dataset.order - b.dataset.order,
@@ -37,7 +60,7 @@
   };
   let sort = SORTS[params().get("sort")] ? params().get("sort") : "book";
   let view = params().get("view") === "table" ? "table" : "cards";
-  const PANELS = { stats: "project-stats", data: "project-data", notes: "project-notes" };
+  const PANELS = { stats: "project-stats" };
   let tab = PANELS[params().get("tab")] ? params().get("tab") : "projects";
   const press = (group, attr, value) => group.querySelectorAll(`[${attr}]`).forEach((b) => b.setAttribute("aria-pressed", String(b.getAttribute(attr) === value)));
   const applySort = () => {
@@ -53,10 +76,10 @@
   const projectsTab = document.getElementById("projects-tab");
   const applyView = () => {
     const stats = tab === "stats";
-    const other = tab === "data" || tab === "notes"; // sources and notes: no filters summary, sort, view or buttons
+    const other = false; // sources and notes: no filters summary, sort, view or buttons
     // The list and the panels swap in place, as Marin Mentions does with Stats.
-    listEl.querySelectorAll("#project-cards, #project-table-wrap, #project-empty, #select-all-field").forEach((el) => { if (tab !== "projects") el.hidden = true; });
-    if (tab === "projects") { cardsEl.hidden = view !== "cards"; tableWrap.hidden = view !== "table"; emptyEl.hidden = cards.some((c) => !c.hidden); }
+    listEl.querySelectorAll("#project-cards, #project-table-wrap, #select-all-field").forEach((el) => { if (tab !== "projects") el.hidden = true; });
+    if (tab === "projects") { cardsEl.hidden = view !== "cards"; tableWrap.hidden = view !== "table"; }
     Object.entries(PANELS).forEach(([name, id]) => { const el = document.getElementById(id); if (el) el.hidden = tab !== name; });
     Object.keys(PANELS).forEach((name) => { const t = document.getElementById(`${name}-toggle`); if (t) t.setAttribute("aria-pressed", String(tab === name)); });
     if (projectsTab) projectsTab.setAttribute("aria-selected", String(tab === "projects"));
@@ -89,16 +112,6 @@
     if (b) { view = b.dataset.view; applyView(); }
   });
 
-  // ---- facets: what is chosen, in words -----------------------------------------------------------------------
-  const facets = Array.from(document.querySelectorAll(".search-facet-group"));
-  const labelOf = (box) => Array.from(box.parentElement.childNodes).find((n) => n.nodeType === 3).textContent.trim();
-  const chosen = (group) => Array.from(group.querySelectorAll("input:checked"));
-  const refreshSummaries = () => facets.forEach((group) => {
-    const on = chosen(group);
-    group.querySelector("summary").textContent = on.length === 0 ? group.dataset.all : on.length === 1 ? labelOf(on[0]) : `${on.length} selected`;
-    if (on.length) group.querySelector("details").open = true;
-  });
-
   // ---- stats --------------------------------------------------------------------------------------------------
   const num = (el, key) => Number(el.dataset[key]) || 0;
   const sum = (list, key) => list.reduce((n, el) => n + num(el, key), 0);
@@ -109,7 +122,7 @@
 
   // Nothing narrows the selection: the totals are the ones the book prints. A selection adds up the projects listed.
   const printed = document.getElementById("printed-totals");
-  const isWhole = () => Boolean(printed) && document.getElementById("project-search").value.trim() === "" && facets.every((group) => chosen(group).length === 0);
+  const isWhole = () => Boolean(printed) && column.filterState.search.trim() === "" && groups.every((group) => chosen(group).length === 0);
   const printedYears = printed ? JSON.parse(printed.dataset.years) : {};
   const printedCategories = printed ? JSON.parse(printed.dataset.categories) : {};
   const yearTotal = (list, y) => (isWhole() && printedYears[y] != null ? printedYears[y] : sum(list, `y${y}`));
@@ -118,7 +131,6 @@
     // The table follows the cards.
     const shown = new Set(visible.map((c) => c.dataset.project));
     rows.forEach((row, slug) => { row.hidden = !shown.has(slug); });
-    emptyEl.hidden = visible.length !== 0 || tab === "stats";
     setStat("n", String(visible.length));
     setStat("cost", millions(sum(visible, "cost")));
     setStat("programmed", millions(isWhole() ? Number(printed.dataset.programmed) : sum(visible, "programmed")));
@@ -131,11 +143,10 @@
       cell(tr, 3, money(isWhole() && printedCategories[tr.dataset.category] != null ? printedCategories[tr.dataset.category] : sum(mine, "programmed")));
     });
     // The Showing line: each filter in order, its choice or its "all" words, then the count and a short breakdown.
-    const parts = facets.map((group) => { const on = chosen(group); return on.length ? on.map(labelOf).join(" or ") : group.dataset.all; });
-    const q = document.getElementById("project-search").value.trim();
+    const parts = groups.map((group) => { const on = chosen(group); return on.length ? on.map((v) => labelOf(group, v)).join(" or ") : group.allLabel; });
+    const q = column.filterState.search.trim();
     const isNew = visible.filter((c) => c.dataset.facetStatus === "New").length;
-    summaryEl.textContent = `Showing: ${q ? `“${q}” · ` : ""}${parts.join(" · ")} (${visible.length} ${visible.length === 1 ? "project" : "projects"} — New ${isNew}, Ongoing ${visible.length - isNew})`;
-    refreshSummaries();
+    column.setResults(visible.length, `Showing: ${q ? `“${q}” · ` : ""}${parts.join(" · ")} (${visible.length} ${visible.length === 1 ? "project" : "projects"} — New ${isNew}, Ongoing ${visible.length - isNew})`);
     showing = visible;
     refreshOutput();
     renderCharts();
@@ -284,21 +295,19 @@
     refreshOutput();
   });
 
-  window.MarinSearchLayout.init({
-    input: document.getElementById("project-search"),
-    items: () => cards,
-    facetGroups: facets.map((group) => ({ name: group.id.replace("facet-", ""), container: group })),
-    emptyEl,
-    resetButton: document.getElementById("reset-filters-button"),
-    toggleButton: toggle,
-    onChange: update,
+  // The column matches the projects; the cards they do not match are hidden, and the counts beside each choice follow.
+  const filterNow = () => {
+    const hit = new Set(column.filter(records).map((r) => r.project));
+    cards.forEach((card) => { card.hidden = !hit.has(card.dataset.project); });
+    update(cards.filter((card) => !card.hidden));
+    column.updateCounts(records);
+  };
+  column.addEventListener("marin-filter-change", (event) => {
+    // Reset also goes back to the first tab.
+    if (event.detail.source === "reset") { tab = "projects"; applyView(); }
+    filterNow();
   });
-  // Reset clears every filter and the search, closes the filter groups and goes back to the first tab (after the shared filter script has cleared the choices).
-  document.getElementById("reset-filters-button").addEventListener("click", () => setTimeout(() => {
-    facets.forEach((group) => { group.querySelector("details").open = false; });
-    tab = "projects";
-    applyView();
-  }, 0));
+  filterNow();
   applySort();
   applyView();
-})();
+})().catch((error) => console.error(error));

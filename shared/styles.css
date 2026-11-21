@@ -244,44 +244,6 @@
   display: none;
 }
 
-/* Insights: choose the data, ask a question, copy the prompt. */
-.insights__include {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem 1.5rem;
-  margin: 1rem 0;
-}
-
-.insights__option {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin: 0;
-}
-
-.insights__question textarea {
-  width: 100%;
-  margin-top: 0.25rem;
-}
-
-.insights__actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem;
-  margin: 1rem 0;
-}
-
-.insights__actions .app-help-text {
-  margin: 0 0 0 0.5rem;
-}
-
-.insights__preview {
-  max-height: 24rem;
-  overflow: auto;
-  white-space: pre-wrap;
-}
-
 /* Every table has its own Copy and Download buttons above it. */
 .table-block {
   margin: 1rem 0;
@@ -373,4 +335,9 @@ html[data-locked] body > *:not(.gate) {
 
 .gate input {
   margin: 0;
+}
+
+/* Where a tab's data comes from, at the top of the tab. */
+.data-strip {
+  margin: 0 0 1rem;
 }

@@ -12,7 +12,7 @@ const FORMATS = [['text', 'Text'], ['html', 'HTML'], ['markdown', 'Markdown']];
 // `scope` is the selector of the content (null when the page builds its own strings and calls marinFormatMenus) the buttons copy and download; on a page with tabs it is replaced by the open tab.
 // `json` is whether the page carries its data as JSON-LD; `csvs` is [{ id, label, tab }], one for each table.
 // `tabs` is { content: [tabs with text to copy], json: [tabs with JSON] }. Without it every button is always shown.
-const actions = (fileName, scope = 'article.content', json = false, csvs = [], tabs = null, link = true) => {
+const actions = (fileName, scope = 'article.content', json = false, csvs = [], tabs = null, link = true, extraDownload = '') => {
   const panel = (kind) => (link ? `${kind}-panel` : `${kind}-panel-${fileName}`);
   const only = (names) => (tabs ? ` data-for-tabs="${esc(names.join(' '))}"` : '');
   const menu = (kind, title, extra = '') => `<div class="menu"${only(tabs ? tabs.content : [])}><button type="button" class="action-button menu-toggle" data-icon="${kind}" aria-expanded="false" aria-controls="${panel(kind)}" aria-label="${title}, choose a format" title="${title}">${CARET}</button>` +
@@ -20,7 +20,7 @@ const actions = (fileName, scope = 'article.content', json = false, csvs = [], t
     `${json ? `<button type="button" data-button-kind="menu-item" data-${kind}-json${only(tabs ? tabs.json : [])}>JSON</button>` : ''}${extra}</div></div>`;
   const csvItems = csvs.map((c) => `<button type="button" data-button-kind="menu-item" data-download-csv="${esc(c.id)}"${c.file ? ` data-file-name="${esc(c.file)}"` : ''}${only([c.tab || ''])}>${csvs.length === 1 ? 'CSV' : esc('CSV, ' + c.label)}</button>`).join('');
   return `<div class="doc-actions"${tabs ? ' data-tabs' : ''} ${scope ? ` data-formats-for="${esc(scope)}"` : ''} data-file-name="${esc(fileName)}">${menu('copy', 'Copy')}` +
-    `${link ? '<button type="button" class="action-button" data-action="share" data-icon="link" aria-label="Copy link" title="Copy link"></button>' : ''}${menu('download', 'Download', csvItems)}` +
+    `${link ? '<button type="button" class="action-button" data-action="share" data-icon="link" aria-label="Copy link" title="Copy link"></button>' : ''}${menu('download', 'Download', csvItems + extraDownload)}` +
     `<span class="doc-action-status" role="status" aria-live="polite"></span></div>`;
 };
 
