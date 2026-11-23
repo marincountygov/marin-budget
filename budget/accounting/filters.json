@@ -1,0 +1,766 @@
+{
+  "$schema": "../../vendor/marinos/filter-panel.schema.json",
+  "schemaVersion": "1.0.0",
+  "search": {
+    "id": "line-search",
+    "fields": [
+      "title",
+      "area",
+      "department",
+      "budget",
+      "fund",
+      "function",
+      "category",
+      "codes",
+      "terms"
+    ],
+    "match": "phrase"
+  },
+  "groups": [
+    {
+      "type": "checkbox",
+      "id": "measure",
+      "label": "Show",
+      "collapsed": false,
+      "default": [
+        "exp"
+      ],
+      "options": {
+        "values": [
+          {
+            "value": "exp",
+            "label": "Spending"
+          },
+          {
+            "value": "rev",
+            "label": "Revenue"
+          },
+          {
+            "value": "ncc",
+            "label": "Net County cost"
+          },
+          {
+            "value": "cont",
+            "label": "Set-asides"
+          },
+          {
+            "value": "xout",
+            "label": "Transfers to other funds"
+          },
+          {
+            "value": "xin",
+            "label": "Transfers from other funds"
+          },
+          {
+            "value": "pout",
+            "label": "Pass-through payments"
+          },
+          {
+            "value": "pin",
+            "label": "Pass-through receipts"
+          }
+        ]
+      },
+      "param": "measure",
+      "separator": ","
+    },
+    {
+      "type": "checkbox",
+      "id": "basis",
+      "label": "Amounts",
+      "collapsed": false,
+      "default": [
+        "original"
+      ],
+      "options": {
+        "values": [
+          {
+            "value": "original",
+            "label": "Adopted budget"
+          },
+          {
+            "value": "revised",
+            "label": "Current budget"
+          },
+          {
+            "value": "actuals",
+            "label": "Spent or received so far"
+          },
+          {
+            "value": "encumbrance",
+            "label": "Committed"
+          },
+          {
+            "value": "available",
+            "label": "Left to spend or receive"
+          }
+        ]
+      },
+      "param": "basis",
+      "separator": ","
+    },
+    {
+      "type": "checkbox",
+      "id": "year",
+      "label": "Years",
+      "collapsed": false,
+      "default": [
+        "4"
+      ],
+      "options": {
+        "values": [
+          {
+            "value": "0",
+            "label": "FY 2022-23"
+          },
+          {
+            "value": "1",
+            "label": "FY 2023-24"
+          },
+          {
+            "value": "2",
+            "label": "FY 2024-25"
+          },
+          {
+            "value": "3",
+            "label": "FY 2025-26"
+          },
+          {
+            "value": "4",
+            "label": "FY 2026-27"
+          }
+        ]
+      },
+      "param": "year",
+      "separator": ","
+    },
+    {
+      "type": "checkbox",
+      "id": "change",
+      "label": "Compare",
+      "collapsed": false,
+      "default": [],
+      "options": {
+        "values": [
+          {
+            "value": "1",
+            "label": "Show the change between years"
+          }
+        ]
+      },
+      "param": "change",
+      "separator": ","
+    },
+    {
+      "type": "radio",
+      "id": "labels",
+      "label": "Names and codes",
+      "options": {
+        "values": [
+          {
+            "value": "both",
+            "label": "Names and codes"
+          },
+          {
+            "value": "names",
+            "label": "Names only"
+          },
+          {
+            "value": "codes",
+            "label": "Codes only"
+          }
+        ]
+      },
+      "default": "both",
+      "param": "labels"
+    },
+    {
+      "type": "checkbox",
+      "id": "area",
+      "label": "Service areas",
+      "allLabel": "All service areas",
+      "options": {
+        "values": [
+          {
+            "value": "Community & Environment",
+            "label": "Community & Environment"
+          },
+          {
+            "value": "Health & Human Services",
+            "label": "Health & Human Services"
+          },
+          {
+            "value": "Justice & Welfare",
+            "label": "Justice & Welfare"
+          },
+          {
+            "value": "No service area",
+            "label": "No service area"
+          },
+          {
+            "value": "Operations & Resources",
+            "label": "Operations & Resources"
+          }
+        ]
+      },
+      "param": "area",
+      "field": "area"
+    },
+    {
+      "type": "checkbox",
+      "id": "department",
+      "label": "Departments",
+      "allLabel": "All departments",
+      "options": {
+        "values": [
+          {
+            "value": "Agriculture, Weights and Measures",
+            "label": "Agriculture, Weights and Measures"
+          },
+          {
+            "value": "Almonte Sanitary District",
+            "label": "Almonte Sanitary District"
+          },
+          {
+            "value": "Alta Vista Road PRD",
+            "label": "Alta Vista Road PRD"
+          },
+          {
+            "value": "Alto Sanitary District",
+            "label": "Alto Sanitary District"
+          },
+          {
+            "value": "Assessor, Recorder, County Clerk",
+            "label": "Assessor, Recorder, County Clerk"
+          },
+          {
+            "value": "Bay Area Air Quality Management",
+            "label": "Bay Area Air Quality Management"
+          },
+          {
+            "value": "Bel Marin Keys CSD",
+            "label": "Bel Marin Keys CSD"
+          },
+          {
+            "value": "Board of Supervisors",
+            "label": "Board of Supervisors"
+          },
+          {
+            "value": "Bolinas Community PUD",
+            "label": "Bolinas Community PUD"
+          },
+          {
+            "value": "Bolinas FPD",
+            "label": "Bolinas FPD"
+          },
+          {
+            "value": "Bolinas Highlands PRD",
+            "label": "Bolinas Highlands PRD"
+          },
+          {
+            "value": "Ca Street Lighting Assn JPA",
+            "label": "Ca Street Lighting Assn JPA"
+          },
+          {
+            "value": "Child Support Services",
+            "label": "Child Support Services"
+          },
+          {
+            "value": "Children and Families Commission",
+            "label": "Children and Families Commission"
+          },
+          {
+            "value": "Community Development Agency",
+            "label": "Community Development Agency"
+          },
+          {
+            "value": "Corte Madera Sanitary District 2",
+            "label": "Corte Madera Sanitary District 2"
+          },
+          {
+            "value": "County Counsel",
+            "label": "County Counsel"
+          },
+          {
+            "value": "CSA 1 Loma Verde",
+            "label": "CSA 1 Loma Verde"
+          },
+          {
+            "value": "CSA 6 Santa Venetia",
+            "label": "CSA 6 Santa Venetia"
+          },
+          {
+            "value": "CSA 9 Northbridge",
+            "label": "CSA 9 Northbridge"
+          },
+          {
+            "value": "CSA 13 Marin Co Upper Lucas",
+            "label": "CSA 13 Marin Co Upper Lucas"
+          },
+          {
+            "value": "CSA 14 Homestead Valley",
+            "label": "CSA 14 Homestead Valley"
+          },
+          {
+            "value": "CSA 16 Greenbrae",
+            "label": "CSA 16 Greenbrae"
+          },
+          {
+            "value": "CSA 17 Kentfield",
+            "label": "CSA 17 Kentfield"
+          },
+          {
+            "value": "CSA 17 Police Services",
+            "label": "CSA 17 Police Services"
+          },
+          {
+            "value": "CSA 18 Gallinas Village Area",
+            "label": "CSA 18 Gallinas Village Area"
+          },
+          {
+            "value": "CSA 19 Fire Protection Services",
+            "label": "CSA 19 Fire Protection Services"
+          },
+          {
+            "value": "CSA 20 Indian Valley",
+            "label": "CSA 20 Indian Valley"
+          },
+          {
+            "value": "CSA 27 Ross Valley Paramedic",
+            "label": "CSA 27 Ross Valley Paramedic"
+          },
+          {
+            "value": "CSA 28 W Marin Paramedic",
+            "label": "CSA 28 W Marin Paramedic"
+          },
+          {
+            "value": "CSA 29 Paradise Cay",
+            "label": "CSA 29 Paradise Cay"
+          },
+          {
+            "value": "CSA 31 County Fire",
+            "label": "CSA 31 County Fire"
+          },
+          {
+            "value": "CSA 33 Stinson Beach",
+            "label": "CSA 33 Stinson Beach"
+          },
+          {
+            "value": "Cultural Services",
+            "label": "Cultural Services"
+          },
+          {
+            "value": "Department of Finance",
+            "label": "Department of Finance"
+          },
+          {
+            "value": "District Attorney",
+            "label": "District Attorney"
+          },
+          {
+            "value": "Elections (Registrar of Voters)",
+            "label": "Elections (Registrar of Voters)"
+          },
+          {
+            "value": "Entities Mng by DPW",
+            "label": "Entities Mng by DPW"
+          },
+          {
+            "value": "FCZ 1 Novato",
+            "label": "FCZ 1 Novato"
+          },
+          {
+            "value": "FCZ 3 Richardson Bay",
+            "label": "FCZ 3 Richardson Bay"
+          },
+          {
+            "value": "FCZ 4 Bel Aire",
+            "label": "FCZ 4 Bel Aire"
+          },
+          {
+            "value": "FCZ 4A Strawberry",
+            "label": "FCZ 4A Strawberry"
+          },
+          {
+            "value": "FCZ 5 Stinson Beach",
+            "label": "FCZ 5 Stinson Beach"
+          },
+          {
+            "value": "FCZ 6 San Rafael Meadows",
+            "label": "FCZ 6 San Rafael Meadows"
+          },
+          {
+            "value": "FCZ 7 Santa Venetia",
+            "label": "FCZ 7 Santa Venetia"
+          },
+          {
+            "value": "FCZ 9 Ross Valley",
+            "label": "FCZ 9 Ross Valley"
+          },
+          {
+            "value": "FCZ 9A Ross Valley Corte Madera",
+            "label": "FCZ 9A Ross Valley Corte Madera"
+          },
+          {
+            "value": "FCZ 10 Inverness",
+            "label": "FCZ 10 Inverness"
+          },
+          {
+            "value": "Fire Department",
+            "label": "Fire Department"
+          },
+          {
+            "value": "Health and Human Services",
+            "label": "Health and Human Services"
+          },
+          {
+            "value": "Homestead Valley Sanitary District",
+            "label": "Homestead Valley Sanitary District"
+          },
+          {
+            "value": "Human Resources",
+            "label": "Human Resources"
+          },
+          {
+            "value": "IHSS Public Authority",
+            "label": "IHSS Public Authority"
+          },
+          {
+            "value": "Information Services and Technology",
+            "label": "Information Services and Technology"
+          },
+          {
+            "value": "Invernes #2A PRD",
+            "label": "Invernes #2A PRD"
+          },
+          {
+            "value": "Inverness Div 2 PRD",
+            "label": "Inverness Div 2 PRD"
+          },
+          {
+            "value": "Inverness PUD",
+            "label": "Inverness PUD"
+          },
+          {
+            "value": "Kentfield FPD",
+            "label": "Kentfield FPD"
+          },
+          {
+            "value": "Las Gallinas Valley Sanitary District",
+            "label": "Las Gallinas Valley Sanitary District"
+          },
+          {
+            "value": "Law Library",
+            "label": "Law Library"
+          },
+          {
+            "value": "Local Agency Formation Comm",
+            "label": "Local Agency Formation Comm"
+          },
+          {
+            "value": "Madrone Park Circle 2 PRD",
+            "label": "Madrone Park Circle 2 PRD"
+          },
+          {
+            "value": "Madrone Park Circle PRD",
+            "label": "Madrone Park Circle PRD"
+          },
+          {
+            "value": "Marin City CSD",
+            "label": "Marin City CSD"
+          },
+          {
+            "value": "Marin Co Redevelopment Agency",
+            "label": "Marin Co Redevelopment Agency"
+          },
+          {
+            "value": "Marin Co Resource Conservation District",
+            "label": "Marin Co Resource Conservation District"
+          },
+          {
+            "value": "Marin Community Coll",
+            "label": "Marin Community Coll"
+          },
+          {
+            "value": "Marin County Free Library",
+            "label": "Marin County Free Library"
+          },
+          {
+            "value": "Marin County Lighting",
+            "label": "Marin County Lighting"
+          },
+          {
+            "value": "Marin County Open Space",
+            "label": "Marin County Open Space"
+          },
+          {
+            "value": "Marin County Public Fin Author",
+            "label": "Marin County Public Fin Author"
+          },
+          {
+            "value": "Marin Emergency Radio Authority JPA",
+            "label": "Marin Emergency Radio Authority JPA"
+          },
+          {
+            "value": "Marin General Services Authority JPA",
+            "label": "Marin General Services Authority JPA"
+          },
+          {
+            "value": "Marin Telco Agency JPA",
+            "label": "Marin Telco Agency JPA"
+          },
+          {
+            "value": "Marin Transit",
+            "label": "Marin Transit"
+          },
+          {
+            "value": "Marin Wildlife Prevention Authority",
+            "label": "Marin Wildlife Prevention Authority"
+          },
+          {
+            "value": "Marinet Consortium",
+            "label": "Marinet Consortium"
+          },
+          {
+            "value": "Marinwood CSD",
+            "label": "Marinwood CSD"
+          },
+          {
+            "value": "MCOE",
+            "label": "MCOE"
+          },
+          {
+            "value": "Monte Cristo PRD",
+            "label": "Monte Cristo PRD"
+          },
+          {
+            "value": "Mrnson Mosquito - Vector Control District",
+            "label": "Mrnson Mosquito - Vector Control District"
+          },
+          {
+            "value": "Mt View Ave Lagunitas PRD",
+            "label": "Mt View Ave Lagunitas PRD"
+          },
+          {
+            "value": "Muir Beach CSD",
+            "label": "Muir Beach CSD"
+          },
+          {
+            "value": "Murray Park SMD",
+            "label": "Murray Park SMD"
+          },
+          {
+            "value": "Non Departmental",
+            "label": "Non Departmental"
+          },
+          {
+            "value": "North Marin County Water District",
+            "label": "North Marin County Water District"
+          },
+          {
+            "value": "Novato FPD",
+            "label": "Novato FPD"
+          },
+          {
+            "value": "Novato Sanitary District 6",
+            "label": "Novato Sanitary District 6"
+          },
+          {
+            "value": "Novato School District",
+            "label": "Novato School District"
+          },
+          {
+            "value": "Office of the County Executive",
+            "label": "Office of the County Executive"
+          },
+          {
+            "value": "Paradise Estates PRD",
+            "label": "Paradise Estates PRD"
+          },
+          {
+            "value": "Parks",
+            "label": "Parks"
+          },
+          {
+            "value": "Probation",
+            "label": "Probation"
+          },
+          {
+            "value": "Public Defender",
+            "label": "Public Defender"
+          },
+          {
+            "value": "Public Works",
+            "label": "Public Works"
+          },
+          {
+            "value": "Retirees",
+            "label": "Retirees"
+          },
+          {
+            "value": "Retirement",
+            "label": "Retirement"
+          },
+          {
+            "value": "Richardson Bay Regional Trust",
+            "label": "Richardson Bay Regional Trust"
+          },
+          {
+            "value": "Richardson Bay Sanitary District",
+            "label": "Richardson Bay Sanitary District"
+          },
+          {
+            "value": "Ridgewood PRD",
+            "label": "Ridgewood PRD"
+          },
+          {
+            "value": "Ross Valley Paramedic",
+            "label": "Ross Valley Paramedic"
+          },
+          {
+            "value": "Ross Valley Sanitary District 1",
+            "label": "Ross Valley Sanitary District 1"
+          },
+          {
+            "value": "Rush Creek Lighting",
+            "label": "Rush Creek Lighting"
+          },
+          {
+            "value": "San Quentin SMD",
+            "label": "San Quentin SMD"
+          },
+          {
+            "value": "San Rafael Sanitation District",
+            "label": "San Rafael Sanitation District"
+          },
+          {
+            "value": "Saus-Marin City Sanitary District",
+            "label": "Saus-Marin City Sanitary District"
+          },
+          {
+            "value": "Sheriff",
+            "label": "Sheriff"
+          },
+          {
+            "value": "Sleepy Hollow FPD",
+            "label": "Sleepy Hollow FPD"
+          },
+          {
+            "value": "So Marin FPD",
+            "label": "So Marin FPD"
+          },
+          {
+            "value": "Sonoma School District",
+            "label": "Sonoma School District"
+          },
+          {
+            "value": "Stinson Beach FPD",
+            "label": "Stinson Beach FPD"
+          },
+          {
+            "value": "Stinson Beach Water District",
+            "label": "Stinson Beach Water District"
+          },
+          {
+            "value": "Strawberry Recreation District",
+            "label": "Strawberry Recreation District"
+          },
+          {
+            "value": "Tamalpais CSD",
+            "label": "Tamalpais CSD"
+          },
+          {
+            "value": "Tiburon FPD",
+            "label": "Tiburon FPD"
+          },
+          {
+            "value": "Tiburon Sanitary District 5",
+            "label": "Tiburon Sanitary District 5"
+          },
+          {
+            "value": "Tomales Village CSD",
+            "label": "Tomales Village CSD"
+          },
+          {
+            "value": "Transportation Authority of Marin",
+            "label": "Transportation Authority of Marin"
+          },
+          {
+            "value": "UC Cooperative Extension (Farm Advisor)",
+            "label": "UC Cooperative Extension (Farm Advisor)"
+          },
+          {
+            "value": "Woodacre Creek Restoration",
+            "label": "Woodacre Creek Restoration"
+          },
+          {
+            "value": "Workforce Alliance of Nb JPA",
+            "label": "Workforce Alliance of Nb JPA"
+          },
+          {
+            "value": "Zero Waste Marin",
+            "label": "Zero Waste Marin"
+          }
+        ]
+      },
+      "param": "department",
+      "field": "department"
+    },
+    {
+      "type": "checkbox",
+      "id": "budget",
+      "label": "Budget statuses",
+      "allLabel": "All budget statuses",
+      "default": [
+        "FY 2026-27 budget"
+      ],
+      "options": {
+        "values": [
+          {
+            "value": "FY 2026-27 budget",
+            "label": "FY 2026-27 budget"
+          },
+          {
+            "value": "No FY 2026-27 budget",
+            "label": "No FY 2026-27 budget"
+          }
+        ]
+      },
+      "param": "budget",
+      "field": "budget"
+    },
+    {
+      "type": "checkbox",
+      "id": "fund",
+      "label": "Funds",
+      "allLabel": "All funds",
+      "options": {
+        "app": true
+      },
+      "param": "fund",
+      "field": "fund"
+    },
+    {
+      "type": "checkbox",
+      "id": "function",
+      "label": "Functions",
+      "allLabel": "All functions",
+      "options": {
+        "app": true
+      },
+      "param": "function",
+      "field": "function"
+    },
+    {
+      "type": "checkbox",
+      "id": "category",
+      "label": "Categories",
+      "allLabel": "All categories",
+      "options": {
+        "app": true
+      },
+      "param": "category",
+      "field": "category"
+    }
+  ]
+}

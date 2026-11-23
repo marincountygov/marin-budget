@@ -1,0 +1,84 @@
+VALIDATION REPORT
+Rows: source=89,135; written=88,897; dropped valueError=1; dropped zero Contingency=237; reconciliation=89,135
+Non-zero Contingency rows retained: 198
+Generated JSON rows re-read: 88,897
+Cent-level reconciliation: PASS
+Referential integrity: missing orgs=0, missing objects=0
+Dimension counts: departments=122, divisions=186, programs=385, subprograms=588, funds=769, organizations=1,843, objects=855
+Conflicts: 36,085
+File sizes: dimensions.json=791,510 bytes; meta.json=21,168,455 bytes; largest account=100.json 1,249,454 bytes; accounts total=5,406,178 bytes
+
+RECONCILIATION TABLE (source -> expected/output; revenues expected is source x -1)
+[Expenses]
+fy2026_27.original: source=1175150576.08 expected=1175150576.08 json=1175150576.08 diff=0.00
+fy2026_27.revised: source=1520192695.20 expected=1520192695.20 json=1520192695.20 diff=0.00
+fy2026_27.encumbrance: source=228253089.66 expected=228253089.66 json=228253089.66 diff=0.00
+fy2026_27.actuals: source=1136227487.33 expected=1136227487.33 json=1136227487.33 diff=0.00
+fy2026_27.available: source=155712118.21 expected=155712118.21 json=155712118.21 diff=0.00
+fy2025_26.original: source=1101018039.00 expected=1101018039.00 json=1101018039.00 diff=0.00
+fy2025_26.revised: source=1504350721.28 expected=1504350721.28 json=1504350721.28 diff=0.00
+fy2025_26.actuals: source=4125576619.51 expected=4125576619.51 json=4125576619.51 diff=0.00
+fy2024_25.original: source=1012268349.70 expected=1012268349.70 json=1012268349.70 diff=0.00
+fy2024_25.revised: source=1433990332.97 expected=1433990332.97 json=1433990332.97 diff=0.00
+fy2024_25.actuals: source=3929942832.93 expected=3929942832.93 json=3929942832.93 diff=0.00
+fy2023_24.original: source=971938907.20 expected=971938907.20 json=971938907.20 diff=0.00
+fy2023_24.revised: source=1295881437.16 expected=1295881437.16 json=1295881437.16 diff=0.00
+fy2023_24.actuals: source=3525666930.19 expected=3525666930.19 json=3525666930.19 diff=0.00
+fy2022_23.actuals: source=3232723814.89 expected=3232723814.89 json=3232723814.89 diff=0.00
+[Revenues]
+fy2026_27.original: source=-1156454407.68 expected=1156454407.68 json=1156454407.68 diff=0.00
+fy2026_27.revised: source=-1266542681.69 expected=1266542681.69 json=1266542681.69 diff=0.00
+fy2026_27.encumbrance: source=0.00 expected=0.00 json=0.00 diff=0.00
+fy2026_27.actuals: source=-630896097.30 expected=630896097.30 json=630896097.30 diff=0.00
+fy2026_27.available: source=-635646584.39 expected=635646584.39 json=635646584.39 diff=0.00
+fy2025_26.original: source=-1099999189.00 expected=1099999189.00 json=1099999189.00 diff=0.00
+fy2025_26.revised: source=-1414335569.08 expected=1414335569.08 json=1414335569.08 diff=0.00
+fy2025_26.actuals: source=-3996121153.72 expected=3996121153.72 json=3996121153.72 diff=0.00
+fy2024_25.original: source=-998346820.28 expected=998346820.28 json=998346820.28 diff=0.00
+fy2024_25.revised: source=-1407544708.70 expected=1407544708.70 json=1407544708.70 diff=0.00
+fy2024_25.actuals: source=-4282124016.74 expected=4282124016.74 json=4282124016.74 diff=0.00
+fy2023_24.original: source=-955217723.68 expected=955217723.68 json=955217723.68 diff=0.00
+fy2023_24.revised: source=-1282615687.09 expected=1282615687.09 json=1282615687.09 diff=0.00
+fy2023_24.actuals: source=-3688004772.78 expected=3688004772.78 json=3688004772.78 diff=0.00
+fy2022_23.actuals: source=-3661997416.17 expected=3661997416.17 json=3661997416.17 diff=0.00
+[Other]
+fy2026_27.original: source=33682141.00 expected=33682141.00 json=33682141.00 diff=0.00
+fy2026_27.revised: source=261568822.20 expected=261568822.20 json=261568822.20 diff=0.00
+fy2026_27.encumbrance: source=0.00 expected=0.00 json=0.00 diff=0.00
+fy2026_27.actuals: source=0.00 expected=0.00 json=0.00 diff=0.00
+fy2026_27.available: source=261568822.20 expected=261568822.20 json=261568822.20 diff=0.00
+fy2025_26.original: source=46917026.00 expected=46917026.00 json=46917026.00 diff=0.00
+fy2025_26.revised: source=256966598.49 expected=256966598.49 json=256966598.49 diff=0.00
+fy2025_26.actuals: source=0.00 expected=0.00 json=0.00 diff=0.00
+fy2024_25.original: source=37354656.00 expected=37354656.00 json=37354656.00 diff=0.00
+fy2024_25.revised: source=258383763.31 expected=258383763.31 json=258383763.31 diff=0.00
+fy2024_25.actuals: source=0.00 expected=0.00 json=0.00 diff=0.00
+fy2023_24.original: source=34935577.00 expected=34935577.00 json=34935577.00 diff=0.00
+fy2023_24.revised: source=260013478.44 expected=260013478.44 json=260013478.44 diff=0.00
+fy2023_24.actuals: source=0.00 expected=0.00 json=0.00 diff=0.00
+fy2022_23.actuals: source=0.00 expected=0.00 json=0.00 diff=0.00
+
+10 LARGEST ACCOUNTS BY FY 2026-27 REVISED AMOUNT
+189280000.00 | dept 900 | org 10019501 GF COUNTYWIDE OPERATIONS | object 411110 PROP TAX-CUR SECURED
+84453164.00 | dept 900 | org 28019505 HHS OPS CW HHS OPS | object 480540 TRANSFERS IN - DISCRETIONARY
+84453164.00 | dept 900 | org 10019504 GF COUNTY WIDE -  HHS OPS | object 580540 TRANSFER OUT - DISCRETIONARY
+57700000.00 | dept 900 | org 10019501 GF COUNTYWIDE OPERATIONS | object 411820 OTH TAX-EXCES ERAF
+48300000.00 | dept 900 | org 10019501 GF COUNTYWIDE OPERATIONS | object 411610 PROP TAX IN LIEU OF VLF
+41532862.00 | dept 100 | org 35621101 MENTAL HEALTH COUNTY FUNDED AT | object 580110 TRANSFER OUT
+41532862.00 | dept 100 | org 35621101 MENTAL HEALTH COUNTY FUNDED AT | object 452214 FEDERAL-MEDI-CAL
+41313951.01 | dept 410 | org 14225653 CAP LARGE PROEJCTS | object 522512 PROF SPEC SVCS - TRADE
+33622708.45 | dept 900 | org 10019501 GF COUNTYWIDE OPERATIONS | object 900145 FIRE FACILITIES
+26605303.30 | dept 100 | org 28041411 HHSOP PUBLIC ASSISTANCE PMTS | object 531010 SUPRT AND CARE OF CLIENTS
+
+ACTUALS WITH NO ORIGINAL/REVISED BUDGET (account rows), TOP 10 DEPARTMENTS
+100 HEALTH AND HUMAN SERVICES: 1638
+601 MCOE: 1325
+410 DEPARTMENT OF PUBLIC WORKS: 843
+260 SHERIFF CORONERS OFFICE: 747
+360 INFORMATION SVC AND TECHNOLOGY: 517
+240 PROBATION: 480
+400 COMMUNITY DEVELOPMENT AGENCY: 479
+230 MARIN COUNTY FIRE: 478
+540 MARIN COUNTY FREE LIBRARY: 406
+300 OFFICE OF THE COUNTY EXECUTIVE: 393
+Total flagged account rows: 11,248
