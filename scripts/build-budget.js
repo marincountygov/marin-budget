@@ -11,7 +11,6 @@ const fs = require('fs');
 const { cleanText } = require('./clean-text');
 const bd = require('./budget-data');
 const { actions, jsonBlock } = require('./page-actions');
-const { insightsTab } = require('./insights');
 const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
@@ -27,6 +26,8 @@ const data = bd.load();
 const orgFile = path.join(ROOT, 'data', 'organizations.jsonld');
 const orgs = fs.existsSync(orgFile) ? JSON.parse(fs.readFileSync(orgFile, 'utf8'))['@graph'] : [];
 const orgById = new Map(orgs.map((o) => [o['@id'], o]));
+const programFile = path.join(ROOT, 'data', 'programs.jsonld');
+const programNames = new Map((fs.existsSync(programFile) ? JSON.parse(fs.readFileSync(programFile, 'utf8'))['@graph'] : []).map((p) => [p['@id'], p.name]));
 const slugOf = (id) => id.split(/[/:]/).pop();
 const areaSlug = (o) => slugOf(o['@id']).replace(/^service-area-/, '');
 const DOCS = 'https://marincountygov.github.io/marin-pulse/';
@@ -35,7 +36,8 @@ const funds = JSON.parse(fs.readFileSync(path.join(DATA, 'funds.jsonld'), 'utf8'
 const sources = JSON.parse(fs.readFileSync(path.join(DATA, 'sources.json'), 'utf8'));
 
 const { shell, esc } = require('./budget-shell');
-const { toolHtml, toolScripts } = require('./budget-tool');
+const { toolHtml, toolScripts, filtersFor } = require('./budget-tool');
+const { writeSection } = require('./data-sections');
 const finalBook = require('./budget-2025-org');
 
 const book = sources.budgetBook;
@@ -64,6 +66,14 @@ let indexOverview = '';
 let indexCsvs = [];
 let statsOverview = '';
 let toolLines = [];
+// What the Budget tool measures. Revenues and Net County cost are in the book for two years; expenditures for three.
+// Net County cost is what the County pays from its own funds after revenues and transfers, and is the book's own figure.
+const MEASURES = [{ id: 'exp', label: 'Total expenditures' }, { id: 'rev', label: 'Revenues' }, { id: 'ncc', label: 'Net County cost' }];
+const MEASURE_NAME = Object.fromEntries(MEASURES.map((m) => [m.id, m.label]));
+// Every figure is tagged with its basis: what was spent (Actual), what was adopted for the year (Approved), or what is proposed for it (Proposed).
+const BASIS = { Actuals: 'Actual', Approved: 'Approved', Proposed: 'Proposed' };
+const basisOf = (label) => BASIS[label.split(' ').pop()] || '';
+const COLUMNS = [...YEARS.map((y) => ({ label: y.label, measure: 'exp' })), ...YEARS.slice(1).map((y) => ({ label: y.label, measure: 'rev' })), ...YEARS.slice(1).map((y) => ({ label: y.label, measure: 'ncc' }))].map((c) => ({ ...c, basis: basisOf(c.label) }));
 let lineGraph = [];
 let indexSources = new Set();
 let areasPage = '';
@@ -73,7 +83,7 @@ if (data) {
   const areas = orgs.filter((o) => o.organizationClassification === 'serviceArea').sort((a, b) => bd.byName(a.name, b.name));
   const pages = new Set();
   const totalOf = (area, y) => (data.idx.get(y.key).get(area['@id']) || new Map()).get('expenditure-total');
-  const areaCsv = [['Service area', 'Department or division', ...YEARS.map((y) => y.label), 'Change', 'FTE']];
+  const areaCsv = [['Service area', 'Department or division', ...YEARS.map((y) => y.label), bd.CHANGE, 'FTE']];
   const sections = areas.map((a) => {
     const b = bd.areaBudget(data, a, { orgById, orgHref });
     if (!b) return '';
@@ -124,7 +134,77 @@ if (data) {
   statsOverview = cw ? cw.html : '';
   const rank = new Map([...depRows].sort((a, b) => b.exp - a.exp).map((r, i) => [r, i]));
   toolLines = depRows.map((r) => ({ order: rank.get(r), slug: slugOf(r.o['@id']), ref: r.line['@id'], title: r.o.name, href: orgHref(r.o), values: YEARS.map((y) => expAt(r.o['@id'], y.key)),
-    facets: { area: areaOf(r.o), department: r.o.name, kind: r.o.organizationClassification === 'department' ? 'Department' : 'Division' }, badges: ['area', 'kind'], page: data.display.linePages[r.line['@id']] }));
+    facets: { area: areaOf(r.o), department: r.o.name, kind: r.o.organizationClassification === 'department' ? 'Department' : 'Division' }, badges: [], page: data.display.linePages[r.line['@id']] }));
+  // Divisions the book prints as programs (a program with the division's name under its department). Their amounts are the
+  // program's expenditures, all fund groups added. Divisions the book prints no amounts for are left out, not estimated.
+  const have = new Set(toolLines.map((l) => l.slug));
+  for (const o of orgs) {
+    if (o.organizationClassification !== 'division' || have.has(slugOf(o['@id']))) continue;
+    const own = YEARS.map((y) => expAt(o['@id'], y.key));
+    if (own.some((v) => v != null)) { // a division the service-area table prints with its own totals (Health and Human Services)
+      const l = (data.idx.get(LATEST).get(o['@id']) || new Map()).get('expenditure-total');
+      toolLines.push({ order: toolLines.length, slug: slugOf(o['@id']), ref: l ? l['@id'] : null, title: o.name, href: orgHref(o), values: own,
+        facets: { area: areaOf(o), department: o.name, kind: 'Division' }, badges: [], page: l ? data.display.linePages[l['@id']] : undefined, nested: true });
+      continue;
+    }
+    const parent = o.parentOrganization && o.parentOrganization['@id'];
+    const prog = [...data.byProgram.keys()].find((id) => (programNames.get(id) || '').toLowerCase() === o.name.toLowerCase() && data.byProgram.get(id).some((l) => (l.administrativeClassification || {})['@id'] === parent));
+    if (!prog) continue;
+    const lines = data.byProgram.get(prog).filter((l) => l.direction === 'expenditure');
+    const values = YEARS.map((y) => { const m = lines.filter((l) => l['@id'].includes(`/${y.key}/`)); return m.length ? m.reduce((s, l) => s + val(l), 0) : null; });
+    if (values.every((v) => v == null)) continue;
+    toolLines.push({ order: toolLines.length, slug: slugOf(o['@id']), ref: lines[0]['@id'], title: o.name, href: orgHref(o), values, prog,
+      facets: { area: areaOf(o), department: o.name, kind: 'Division' }, badges: [], nested: true });
+  }
+  // Revenues and Net County cost, as the book prints them for FY 2025-26 and FY 2026-27, beside the expenditures. A line the book
+  // gives none for (a division with no figures of its own) has none, and shows a dash.
+  const orgBySlug = new Map(orgs.map((o) => [slugOf(o['@id']), o]));
+  const revAt = (oid, key) => { const f = bd.figures(data, oid, key); return f && f.revTotal ? val(f.revTotal) : null; };
+  const nccAt = (oid, field) => { const n = ((((data.display.organizations || {})[oid] || {}).department || {})['Net County Cost']) || {}; return n[field] == null ? null : n[field]; };
+  const progSum = (id, field) => { const rs = (data.display.programRows || []).filter((r) => r.program === id); return rs.length ? rs.reduce((n, r) => n + (r[field] || 0), 0) : null; };
+  for (const l of toolLines) {
+    const oid = orgBySlug.get(l.slug)['@id'];
+    const rev = l.prog ? [progSum(l.prog, 'rev_fy2025_26'), progSum(l.prog, 'rev_fy2026_27')] : [revAt(oid, YEARS[1].key), revAt(oid, YEARS[2].key)];
+    const ncc = l.prog ? [progSum(l.prog, 'ncc_fy2025_26'), progSum(l.prog, 'ncc_fy2026_27')] : [nccAt(oid, 'fy2025_26'), nccAt(oid, 'fy2026_27')];
+    l.values = [...l.values, ...rev, ...ncc];
+  }
+  // The levels below a line: a department's divisions, and the programs the book prints for it or for a division. A division the
+  // book prints no amounts for is listed without them; nothing is estimated.
+  const progOrg = new Map();
+  for (const [pid, ls] of data.byProgram) { const o = ls.map((l) => (l.administrativeClassification || {})['@id']).find(Boolean); if (o) (progOrg.get(o) || progOrg.set(o, []).get(o)).push(pid); }
+  const progValues = (pid) => {
+    const ls = data.byProgram.get(pid) || [];
+    const at = (dir, y) => { const m = ls.filter((l) => l.direction === dir && l['@id'].includes(`/${y.key}/`)); return m.length ? m.reduce((n, l) => n + val(l), 0) : null; };
+    return [...YEARS.map((y) => at('expenditure', y)), ...YEARS.slice(1).map((y) => at('revenue', y)), progSum(pid, 'ncc_fy2025_26'), progSum(pid, 'ncc_fy2026_27')];
+  };
+  const lineBySlug = new Map(toolLines.map((l) => [l.slug, l]));
+  const parentOf = (o) => o.parentOrganization && o.parentOrganization['@id'];
+  const childrenOf = (o, ownProg) => {
+    const divisions = orgs.filter((d) => d.organizationClassification === 'division' && parentOf(d) === o['@id']).map((d) => {
+      const ln = lineBySlug.get(slugOf(d['@id']));
+      return { kind: 'Division', title: d.name, href: orgHref(d), values: ln ? ln.values : null, children: childrenOf(d, ln && ln.prog) };
+    });
+    const programs = (progOrg.get(o['@id']) || []).filter((p) => p !== ownProg).map((pid) => ({ kind: 'Program', title: programNames.get(pid) || pid, values: progValues(pid), children: [] }));
+    const by = (a, b) => a.title.localeCompare(b.title);
+    return [...divisions.sort(by), ...programs.sort(by)];
+  };
+  for (const l of toolLines) { const kids = childrenOf(orgBySlug.get(l.slug), l.prog); if (kids.length) l.children = kids; }
+  // A department by fund group, from the book's program tables: General Fund, HHS Operations Fund and Other Funds. The programs add up to the
+  // department's total, so the groups do too. The figures follow the choice of measures and years, and a change shows the difference between years.
+  const GROUPS = ['General Fund', 'HHS Operations Fund', 'Other Funds'];
+  for (const l of toolLines) {
+    if (l.facets.kind !== 'Department') continue;
+    const oid = orgBySlug.get(l.slug)['@id'];
+    const rows = (data.display.programRows || []).filter((r) => r.department === oid);
+    const sumOf = (g, f) => { const m = rows.filter((r) => r.fundGroup === g && r[f] != null); return m.length ? m.reduce((n, r) => n + r[f], 0) : null; };
+    const funds = GROUPS.filter((g) => rows.some((r) => r.fundGroup === g)).map((g) => ({ kind: 'Fund group', title: g, children: [],
+      values: [null, sumOf(g, 'exp_fy2025_26'), sumOf(g, 'exp_fy2026_27'), sumOf(g, 'rev_fy2025_26'), sumOf(g, 'rev_fy2026_27'), sumOf(g, 'ncc_fy2025_26'), sumOf(g, 'ncc_fy2026_27')] }));
+    if (funds.length) l.funds = funds;
+    // Where the book says the department was reorganized, its own words and pages.
+    const ch = data.changes[oid];
+    const said = ch ? ch.paragraphs.filter((p) => /transferred|reorganiz|restructur/i.test(p)) : [];
+    if (said.length) l.reorg = { paragraphs: said, pages: bd.pagesText(data, ch.pages) };
+  }
   lineGraph = depRows.map((r) => r.line);
   // Compare (the Compare tab of the tool): every department's figures, in the order of the rows below.
   const YL = YEARS.map((y) => y.label);
@@ -132,8 +212,8 @@ if (data) {
     { label: `Expenditures, ${YL[0]}`, kind: 'money', chart: { group: 'year', name: YL[0] } },
     { label: `Expenditures, ${YL[1]}`, kind: 'money', chart: { group: 'year', name: YL[1] } },
     { label: `Expenditures, ${YL[2]}`, kind: 'money', chart: [{ group: 'year', name: YL[2] }, { group: 'latest', name: 'Expenditures' }] },
-    { label: `Change, ${YL[1]} to ${YL[2]}`, kind: 'change' },
-    { label: 'Change, percent', kind: 'percent' },
+    { label: bd.CHANGE, kind: 'change' },
+    { label: `${bd.CHANGE}, percent`, kind: 'percent' },
     { label: `Revenues, ${YL[1]}`, kind: 'money' },
     { label: `Revenues, ${YL[2]}`, kind: 'money', chart: { group: 'latest', name: 'Revenues' } },
     { label: `Net County cost, ${YL[1]}`, kind: 'money' },
@@ -148,7 +228,21 @@ if (data) {
     compareLines[slugOf(r.o['@id'])] = [...e, e[1] != null && e[2] != null ? e[2] - e[1] : null, e[1] ? Math.round(((e[2] - e[1]) / e[1]) * 1000) / 10 : null,
       val(f(YEARS[1].key).revTotal), val(f(YEARS[2].key).revTotal), ncc.fy2025_26 ?? null, ncc.fy2026_27 ?? null, r.fte ?? null];
   }
+  // A division inside a department is compared by its expenditures; the other rows are the department's own figures.
+  for (const l of toolLines.filter((x) => x.nested)) {
+    const e = l.values.slice(0, YEARS.length); // the expenditures
+    compareLines[l.slug] = [...e, e[1] != null && e[2] != null ? e[2] - e[1] : null, e[1] ? Math.round(((e[2] - e[1]) / e[1]) * 1000) / 10 : null, null, null, null, null, null];
+  }
   toolCompare = { rows: compareRows, lines: compareLines, titles: { year: 'Expenditures by year', latest: `${YL[2]}: expenditures, revenues and net County cost` } };
+  // The lines for the Reports page: each department or division with its expenditures, and the department it belongs to.
+  const deptOf = (l) => { const o = orgBySlug.get(l.slug); const p = o && o.parentOrganization && orgById.get(o.parentOrganization['@id']); return l.nested && p && p.organizationClassification !== 'serviceArea' ? p.name : l.facets.department; };
+  fs.mkdirSync(path.join(ROOT, 'reports', 'data'), { recursive: true });
+  fs.writeFileSync(path.join(ROOT, 'reports', 'data', 'budget.json'), JSON.stringify({
+    id: 'budget', label: 'Budget', titleLabel: 'Department or division', columns: COLUMNS.map((c) => ({ label: c.label, kind: 'money', measure: MEASURE_NAME[c.measure], key: c.measure, basis: c.basis })), defaultColumns: [1, 2], compare: true,
+    dimensions: [{ id: 'area', label: 'Service area' }, { id: 'dept', label: 'Department' }, { id: 'kind', label: 'Type' }],
+    source: book ? { label: book.title, url: book.url } : null,
+    lines: toolLines.map((l) => ({ title: l.title, nested: Boolean(l.nested), facets: { area: l.facets.area, dept: deptOf(l), kind: l.facets.kind }, values: l.values })),
+  }) + '\n');
   const rows = depRows.map((r) => `<tr><th scope="row">${link(r.o)}</th>${num(r.exp, money(r.exp))}${num(r.rev, money(r.rev))}${num(r.ncc, money(r.ncc))}${num(r.fte, fteText(r.fte))}</tr>`);
   deptsPage = shell('Budget by department', 'Expenditures, revenues and net County cost for each County of Marin department.', [['Marin Budget', '../index.html'], ['Budget', './index.html'], ['Departments', null]],
     `<article class="content"><h1 class="doc-title">Departments</h1><p class="app-help-text">FY 2026-27, largest first.</p>${actions('budget-by-department', 'article.content', true, [{ id: 'table', label: 'departments' }])}` +
@@ -159,14 +253,21 @@ if (data) {
 }
 
 const YEAR_OPTIONS = [{ label: 'FY 2026-27 Proposed', href: './index.html' }, { label: 'FY 2025-26 Final', href: './fy2025-26/index.html' }];
+// The County's own list of final adopted budget books, kept in marin-data's sources.json.
+const past = sources.pastBudgetBooks;
+const pastBooksHtml = past && past.books ? `<h3 id="past-books">Past budget books</h3><ul>${past.books.map((b) => `<li><a href="${esc(b.url)}">${esc(b.title)}</a></li>`).join('')}<li><a href="${esc(past.url)}">${esc(past.title)}</a></li></ul>` : '';
 const indexTool = data && toolLines.length ? (() => {
-  const csv = [['Department or division', 'Service area', 'Type', ...YEARS.map((y) => y.label), 'Book page'], ...toolLines.map((l) => [l.title, l.facets.area, l.facets.kind, ...l.values, l.page || ''])];
-  const dataHtml = bd.sourceList(data, indexSources, [['Budget lines (JSON-LD)', './data/budget-lines.jsonld'], ['Budgets (JSON-LD)', './data/budgets.jsonld']], '', 2, 'source').replace(/^/, '<section class="section" aria-labelledby="source">').concat('</section>') +
+  const csv = [['Department or division', 'Service area', 'Type', ...COLUMNS.map((c) => `${MEASURE_NAME[c.measure]}, ${c.label}`), 'Book page'], ...toolLines.map((l) => [l.title, l.facets.area, l.facets.kind, ...l.values, l.page || ''])];
+  const dataHtml = bd.sourceList(data, indexSources, [['Budget lines (JSON-LD)', './data/budget-lines.jsonld'], ['Budgets (JSON-LD)', './data/budgets.jsonld']], '', 2, 'source').replace(/^/, '<section class="section" aria-labelledby="source">').concat(pastBooksHtml + '</section>') +
     `<section class="section" aria-labelledby="pages"><h2 id="pages">Pages</h2><ul><li><a href="./service-areas.html">Service areas</a></li><li><a href="./departments.html">Departments</a></li><li><a href="./funds.html">Funds</a></li></ul></section>`;
   const notesHtml = `<ul>${[NOTE, book && book.note].filter(Boolean).map((n) => `<li>${esc(n)}</li>`).join('')}</ul>`;
-  const html = toolHtml({ id: 'fy2026-28', titleLabel: 'Department or division', noun: { one: 'line', many: 'lines', Many: 'Lines' }, columns: YEARS.map((y) => ({ label: y.label })), defaultColumn: YEARS.length - 1,
+  writeSection('budget-2026-28', 'Budget, FY 2026-28 book', dataHtml + `<section class="section" aria-labelledby="notes"><h2 id="notes">Notes</h2>${notesHtml}</section>`, '../budget/');
+  const toolCfg = { up: '../', id: 'fy2026-28', titleLabel: 'Department or division', noun: { one: 'department or division', many: 'departments and divisions', Many: 'Departments and divisions' }, columns: COLUMNS, measures: MEASURES, defaultColumn: YEARS.length - 1,
     facets: [{ name: 'area', label: 'Service areas', all: 'All service areas' }, { name: 'department', label: 'Departments and divisions', all: 'All departments and divisions' }, { name: 'kind', label: 'Types', all: 'All types' }],
-    chartFacets: ['area', 'department'], breakdownFacet: 'kind', countFacet: 'department', countLabel: 'Departments', lines: toolLines, statsExtra: statsOverview, compare: toolCompare, compareNoun: 'departments', compareLabel: 'Departments', compareCaption: 'Departments side by side', dataHtml, notesHtml, exportCaption: 'Budget lines in the County of Marin Proposed Budget FY 2026-28', statsTitle: 'Budget', lib: '../vendor/chart.min.js', books: YEAR_OPTIONS, currentBook: './index.html' });
+    chartFacets: ['area', 'department'], breakdownFacet: 'kind', countFacet: 'department', countLabel: 'Departments', lines: toolLines, statsExtra: statsOverview, compare: toolCompare, compareNoun: 'departments', compareLabel: 'Departments', compareCaption: 'Departments side by side', exportCaption: 'Budget lines in the County of Marin Proposed Budget FY 2026-28', statsTitle: 'Budget', lib: '../vendor/chart.min.js', books: YEAR_OPTIONS, currentBook: './index.html' };
+  // The filter column is drawn by the shell from this file.
+  fs.writeFileSync(path.join(OUT, 'filters.json'), JSON.stringify(filtersFor(toolCfg), null, 2) + '\n');
+  const html = toolHtml(toolCfg);
   return html + jsonBlock(lineGraph, '../shared/page-data.js', [{ id: 'table', rows: csv }]) + toolScripts('../');
 })() : '';
 const index = shell('Budget', 'The County of Marin budget: service areas, departments and funds.', [['Marin Budget', '../index.html'], ['Budget', null]],
@@ -175,8 +276,6 @@ const index = shell('Budget', 'The County of Marin budget: service areas, depart
 
 
 // ---- A page for each fund -----------------------------------------------------------------------------------------
-const programFile = path.join(ROOT, 'data', 'programs.jsonld');
-const programNames = new Map((fs.existsSync(programFile) ? JSON.parse(fs.readFileSync(programFile, 'utf8'))['@graph'] : []).map((p) => [p['@id'], p.name]));
 const FUNDS = path.join(OUT, 'funds');
 fs.rmSync(FUNDS, { recursive: true, force: true });
 fs.mkdirSync(FUNDS, { recursive: true });
@@ -200,17 +299,14 @@ function fundPage(f) {
   const budgetTab = fb ? budgetTab0.replace(/<\/section>$/, fin + '</section>') : fin ? `<section class="section" id="budget" data-tab-section="budget" aria-labelledby="budget-heading" hidden><h2 id="budget-heading">Budget</h2>${fin}</section>` : '';
   const tabs = ['details', (fb || fin) && 'budget', 'data'].filter(Boolean);
   const csvs = fb ? [{ id: 'departments', label: 'departments', rows: fb.csvDepartments, tab: 'budget' }, { id: 'programs', label: 'programs', rows: fb.csvPrograms, tab: 'budget' }] : [];
-  const nav = `<nav id="page-tabs" class="org-tabs" aria-label="Sections"><a href="#dashboard">Dashboard</a><a href="#details">About</a>${fb || fin ? '<a href="#budget">Budget</a>' : ''}<a href="#data">Data</a><a href="#insights">Insights</a></nav>`;
-  const dashboard = `<div id="dashboard" data-tab-section="dashboard" data-no-copy><div class="org-dashboard">` + (fb
-    ? `<section class="org-dash" aria-labelledby="dash-budget"><h2 id="dash-budget">Budget</h2>${fb.kpis}<p class="org-dash__more"><a href="#budget">All Budget</a></p></section>`
-    : `<section class="org-dash" aria-labelledby="dash-about"><h2 id="dash-about">About</h2><dl class="org-facts">${facts.join('')}</dl><p class="org-dash__more"><a href="#details">All About</a></p></section>`) + '</div></div>';
-  const insights = insightsTab({ subject: name + ' fund', noun: 'fund', sections: [{ id: 'details', label: 'About', data: { name, code: bd.fundCode(f), description: f.description ? cleanText(f.description) : undefined } }, ...(fb ? [{ id: 'budget', label: 'Budget', data: fb.insights }] : [])],
-    scriptPath: '../../shared/insights.js', budgetNote: fb ? bd.BUDGET_NOTE : '' });
+  // A fund with no figures has nothing for a Dashboard to say beyond About, so it has no Dashboard tab and opens on About.
+  const nav = `<nav id="page-tabs" class="org-tabs" aria-label="Sections">${fb ? '<a href="#dashboard">Dashboard</a>' : ''}<a href="#details">About</a>${fb || fin ? '<a href="#budget">Budget</a>' : ''}<a href="#data">Data</a></nav>`;
+  const dashboard = fb ? `<div id="dashboard" data-tab-section="dashboard" data-no-copy><div class="org-dashboard"><section class="org-dash" aria-labelledby="dash-budget"><h2 id="dash-budget">Budget</h2>${fb.kpis}<p class="org-dash__more"><a href="#budget">All Budget</a></p></section></div></div>` : '';
   const body = `<article class="content"><h1 class="doc-title">${esc(name)}</h1>${nav}${actions('fund-' + bd.fundSlug(f), 'article.content', true, csvs, { content: tabs, json: tabs })}` + dashboard +
-    `<div id="details" data-tab-section="details" hidden><section class="section" aria-labelledby="about-heading"><h2 id="about-heading">About</h2><dl class="org-facts">${facts.join('')}</dl></section></div>` + budgetTab +
+    `<div id="details" data-tab-section="details"${fb ? ' hidden' : ''}><section class="section" aria-labelledby="about-heading"><h2 id="about-heading">About</h2><dl class="org-facts">${facts.join('')}</dl></section></div>` + budgetTab +
     `<div id="data" data-tab-section="data" hidden><section class="section" aria-labelledby="record"><h2 id="record">Record</h2><dl class="org-facts">${row('Record id', `<code>${esc(f['@id'])}</code>`)}${row('Record type', `<code>${esc(f['@type'])}</code>`)}</dl></section>` +
     `<section class="section" aria-labelledby="source"><h2 id="source">Source</h2><ul><li><a href="../data/funds.jsonld">Fund data (JSON-LD)</a></li>${fb ? '<li><a href="../data/budget-lines.jsonld">Budget lines (JSON-LD)</a></li>' : ''}</ul>${book ? `<p class="app-help-text">${esc(book.note)}</p>` : ''}</section></div>` +
-    jsonBlock({ details: [f], data: [f], budget: fb ? fb.lines : [] }, '../../shared/page-data.js', csvs) + insights + '</article>';
+    jsonBlock({ details: [f], data: [f], budget: fb ? fb.lines : [] }, '../../shared/page-data.js', csvs) + '</article>';
   return shell(name, f.description ? cleanText(f.description) : `A fund of the County of Marin.`, [['Marin Budget', '../../index.html'], ['Budget', '../index.html'], ['Funds', '../funds.html'], [name, null]], body, '../');
 }
 for (const f of funds) fs.writeFileSync(path.join(FUNDS, `${bd.fundSlug(f)}.html`), fundPage(f));

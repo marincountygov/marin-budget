@@ -52,12 +52,55 @@ test('a program or fund a line names exists, and a program line names its fund g
   }
 });
 
-test('a choice of one is a dropdown once there is anything to choose', () => {
-  const { choiceFilter } = require('../scripts/budget-tool');
+test('a choice of one is radio buttons for a few options and a dropdown for a longer list', () => {
+  const { choiceGroup } = require('../scripts/filter-column');
   const options = (n) => Array.from({ length: n }, (_, i) => ({ value: String(i), label: `Option ${i}` }));
-  assert.match(choiceFilter('f', 'Year', 'year', options(1), '0'), /type="radio"/);
-  const two = choiceFilter('f', 'Year', 'year', options(2), '1');
-  assert.match(two, /<select id="f-select" name="year">/);
-  assert.doesNotMatch(two, /type="radio"/);
-  assert.match(two, /<option value="1" selected>/);
+  const few = choiceGroup('book', 'Budget books', options(2), '1', 'book');
+  assert.strictEqual(few.type, 'radio');
+  assert.strictEqual(few.default, '1');
+  assert.strictEqual(few.param, 'book');
+  const many = choiceGroup('year', 'Years', options(5), '1', 'show');
+  assert.strictEqual(many.type, 'select');
+  assert.strictEqual(many.default, '1');
+});
+
+test('the filter column element is only the element; the shell draws it from filters.json', () => {
+  const { filterColumn } = require('../scripts/filter-column');
+  assert.strictEqual(filterColumn('budget'), '<div class="search-side" data-filter-column="filters.json" data-filter-name="budget"></div>');
+});
+
+test('the Budget filters list the book, then what to show, then the facets', () => {
+  const { filtersFor } = require('../scripts/budget-tool');
+  const columns = [{ label: 'FY 2025-26 Approved', measure: 'exp' }, { label: 'FY 2026-27 Proposed', measure: 'exp' }, { label: 'FY 2025-26 Approved', measure: 'rev' }, { label: 'FY 2026-27 Proposed', measure: 'rev' }];
+  const lines = [{ slug: 'a', title: 'Zoo', facets: { area: 'Services', department: 'Zoo' } }, { slug: 'b', title: 'Assessor', facets: { area: 'Finance', department: 'Assessor' } }];
+  const cfg = { up: '../', columns, measures: [{ id: 'exp', label: 'Total expenditures' }, { id: 'rev', label: 'Revenues' }], defaultColumn: 1, lines,
+    facets: [{ name: 'area', label: 'Service areas', all: 'All service areas' }, { name: 'department', label: 'Departments', all: 'All departments' }],
+    books: [{ label: 'FY 2026-27 Proposed', href: './index.html' }, { label: 'FY 2025-26 Final', href: './fy2025-26/index.html' }], currentBook: './index.html' };
+  const f = filtersFor(cfg);
+  assert.strictEqual(f.schemaVersion, '1.0.0');
+  assert.deepStrictEqual(f.groups.map((g) => g.id), ['book', 'measure', 'year', 'change', 'area', 'department']);
+  const [book, measure, year, change, area, department] = f.groups;
+  assert.strictEqual(book.type, 'radio');
+  assert.strictEqual(book.default, './index.html');
+  // What to show: open checkbox lists with defaults, read and written as one parameter like the links before the column was drawn from a file.
+  [measure, year, change].forEach((g) => { assert.strictEqual(g.type, 'checkbox'); assert.strictEqual(g.collapsed, false); assert.strictEqual(g.separator, ','); });
+  assert.deepStrictEqual(measure.default, ['exp']);
+  assert.deepStrictEqual(year.default, ['1']);
+  assert.deepStrictEqual(year.options.values.map((o) => o.label), ['FY 2025-26 Approved', 'FY 2026-27 Proposed']);
+  // The facets are plural names with "All ..." words, matched on a field of the same name; departments run A to Z.
+  assert.strictEqual(area.allLabel, 'All service areas');
+  assert.strictEqual(area.field, 'area');
+  assert.deepStrictEqual(department.options.values.map((o) => o.value), ['Assessor', 'Zoo']);
+  assert.deepStrictEqual(f.search.fields, ['title', 'area', 'department']);
+  assert.ok(f.groups.every((g) => g.label.startsWith(g.label[0].toUpperCase()) && !g.label.includes(':')));
+});
+
+test('a book with one measure chooses its year from a list, the latest first shown', () => {
+  const { filtersFor } = require('../scripts/budget-tool');
+  const columns = ['2023-24 Actual', '2024-25 Estimated', '2025-26 Adopted'].map((label) => ({ label }));
+  const cfg = { up: '../../', columns, defaultColumn: 2, lines: [], facets: [], books: [{ label: 'A', href: '../index.html' }, { label: 'B', href: './index.html' }], currentBook: './index.html' };
+  const year = filtersFor(cfg).groups.find((g) => g.id === 'year');
+  assert.strictEqual(year.type, 'radio');
+  assert.strictEqual(year.default, '2');
+  assert.strictEqual(year.param, 'show');
 });

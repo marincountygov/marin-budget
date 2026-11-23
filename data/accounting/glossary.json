@@ -1,0 +1,379 @@
+{
+  "source": "Written from the abbreviations in the export's names (data/accounting/label-review.csv lists them by frequency). An entry marked certain is an ordinary word or is shown by the data to mean one thing; it is applied. An entry marked confirm is only a suggestion until the County approves it; it is not applied. A confirm entry that is an acronym is shown in capitals as it is; one marked \"as\": \"word\" is shown as a word.",
+  "tokens": {
+    "admn": {
+      "to": "Administration",
+      "status": "certain"
+    },
+    "admin": {
+      "to": "Administration",
+      "status": "certain"
+    },
+    "svc": {
+      "to": "Services",
+      "status": "certain"
+    },
+    "svcs": {
+      "to": "Services",
+      "status": "certain"
+    },
+    "svs": {
+      "to": "Services",
+      "status": "certain"
+    },
+    "serv": {
+      "to": "Services",
+      "status": "certain"
+    },
+    "dist": {
+      "to": "District",
+      "status": "certain"
+    },
+    "dst": {
+      "to": "District",
+      "status": "certain"
+    },
+    "elem": {
+      "to": "Elementary",
+      "status": "certain"
+    },
+    "sch": {
+      "to": "School",
+      "status": "certain"
+    },
+    "cntrl": {
+      "to": "Control",
+      "status": "certain"
+    },
+    "vctr": {
+      "to": "Vector",
+      "status": "certain"
+    },
+    "mosqto": {
+      "to": "Mosquito",
+      "status": "certain"
+    },
+    "vly": {
+      "to": "Valley",
+      "status": "certain"
+    },
+    "vlly": {
+      "to": "Valley",
+      "status": "certain"
+    },
+    "bldg": {
+      "to": "Building",
+      "status": "certain"
+    },
+    "oth": {
+      "to": "Other",
+      "status": "certain"
+    },
+    "intrafd": {
+      "to": "Intrafund",
+      "status": "certain"
+    },
+    "interfd": {
+      "to": "Interfund",
+      "status": "certain"
+    },
+    "recvry": {
+      "to": "Recovery",
+      "status": "certain"
+    },
+    "reimb": {
+      "to": "Reimbursement",
+      "status": "certain"
+    },
+    "dept": {
+      "to": "Department",
+      "status": "certain"
+    },
+    "hlth": {
+      "to": "Health",
+      "status": "certain"
+    },
+    "insur": {
+      "to": "Insurance",
+      "status": "certain"
+    },
+    "cnty": {
+      "to": "County",
+      "status": "certain"
+    },
+    "misc": {
+      "to": "Miscellaneous",
+      "status": "certain"
+    },
+    "ops": {
+      "to": "Operations",
+      "status": "certain"
+    },
+    "bnd": {
+      "to": "Bond",
+      "status": "certain"
+    },
+    "meas": {
+      "to": "Measure",
+      "status": "certain"
+    },
+    "mngment": {
+      "to": "Management",
+      "status": "certain"
+    },
+    "agcy": {
+      "to": "Agency",
+      "status": "certain"
+    },
+    "conser": {
+      "to": "Conservation",
+      "status": "certain"
+    },
+    "commiss": {
+      "to": "Commission",
+      "status": "certain"
+    },
+    "auth": {
+      "to": "Authority",
+      "status": "certain"
+    },
+    "mcfl": {
+      "to": "Marin County Free Library",
+      "status": "confirm"
+    },
+    "mcfd": {
+      "to": "Marin County Fire Department",
+      "status": "confirm"
+    },
+    "cda": {
+      "to": "Community Development Agency",
+      "status": "confirm"
+    },
+    "dof": {
+      "to": "Department of Finance",
+      "status": "confirm"
+    },
+    "sco": {
+      "to": "Sheriff-Coroner",
+      "status": "confirm"
+    },
+    "ehs": {
+      "to": "Environmental Health Services",
+      "status": "confirm"
+    },
+    "ems": {
+      "to": "Emergency Medical Services",
+      "status": "confirm"
+    },
+    "mhsa": {
+      "to": "Mental Health Services Act",
+      "status": "confirm"
+    },
+    "bhsa": {
+      "to": "Behavioral Health Services Act",
+      "status": "confirm"
+    },
+    "css": {
+      "to": "Community Services and Supports",
+      "status": "confirm"
+    },
+    "mera": {
+      "to": "Marin Emergency Radio Authority",
+      "status": "confirm"
+    },
+    "rda": {
+      "to": "Redevelopment Agency",
+      "status": "confirm"
+    },
+    "gasb": {
+      "to": "GASB",
+      "status": "confirm",
+      "note": "Governmental Accounting Standards Board; left as the acronym unless the County prefers the full name"
+    },
+    "usd": {
+      "to": "Unified School District",
+      "status": "confirm"
+    },
+    "sd": {
+      "to": "Sanitary District",
+      "status": "confirm"
+    },
+    "pw": {
+      "to": "Public Works",
+      "status": "confirm"
+    },
+    "cw": {
+      "to": "Countywide",
+      "status": "confirm"
+    },
+    "veh": {
+      "to": "Vehicle",
+      "status": "confirm",
+      "as": "word"
+    },
+    "tsfrctra": {
+      "to": "",
+      "status": "confirm",
+      "note": "appears only in intrafund object names (INTRAFD TSFRCTRA ...)"
+    },
+    "ftbe": {
+      "to": "",
+      "status": "confirm",
+      "note": "ends 52 fund names (MARIN COUNTY OPEN SPACE - FTBE)"
+    },
+    "mp": {
+      "to": "",
+      "status": "confirm",
+      "note": "begins 56 organization names (MP DA DEPUTY DA)"
+    },
+    "sp": {
+      "to": "",
+      "status": "confirm",
+      "note": "Special? appears in 39 object names (SP REV, SP ED SELPA)",
+      "as": "word"
+    },
+    "sr": {
+      "to": "",
+      "status": "confirm"
+    },
+    "srh": {
+      "to": "",
+      "status": "confirm"
+    },
+    "sre": {
+      "to": "",
+      "status": "confirm"
+    },
+    "mccd": {
+      "to": "",
+      "status": "confirm"
+    },
+    "mccsd": {
+      "to": "",
+      "status": "confirm"
+    },
+    "mwcsd": {
+      "to": "",
+      "status": "confirm"
+    },
+    "otr": {
+      "to": "",
+      "status": "confirm"
+    },
+    "wpc": {
+      "to": "",
+      "status": "confirm"
+    },
+    "php": {
+      "to": "",
+      "status": "confirm"
+    },
+    "psr": {
+      "to": "",
+      "status": "confirm"
+    },
+    "cwgrnt": {
+      "to": "",
+      "status": "confirm"
+    },
+    "hhsop": {
+      "to": "",
+      "status": "confirm"
+    },
+    "mc": {
+      "to": "",
+      "status": "confirm"
+    },
+    "trans": {
+      "to": "",
+      "status": "confirm",
+      "note": "Transfer, Transportation or Transit",
+      "as": "word"
+    },
+    "comm": {
+      "to": "",
+      "status": "confirm",
+      "note": "Commission, Communications or Community",
+      "as": "word"
+    },
+    "int": {
+      "to": "",
+      "status": "confirm",
+      "note": "Interest or Internal",
+      "as": "word"
+    },
+    "exp": {
+      "to": "",
+      "status": "confirm",
+      "note": "Expense or Expenditure",
+      "as": "word"
+    },
+    "rec": {
+      "to": "",
+      "status": "confirm",
+      "note": "Recreation or Receivable",
+      "as": "word"
+    },
+    "supp": {
+      "to": "",
+      "status": "confirm",
+      "note": "Supplies, Supplemental or Support",
+      "as": "word"
+    },
+    "tx": {
+      "to": "",
+      "status": "confirm",
+      "note": "Tax or Treatment",
+      "as": "word"
+    },
+    "fac": {
+      "to": "",
+      "status": "confirm",
+      "note": "Facilities or Facility",
+      "as": "word"
+    },
+    "def": {
+      "to": "",
+      "status": "confirm",
+      "note": "Deferred?",
+      "as": "word"
+    },
+    "proj": {
+      "to": "",
+      "status": "confirm",
+      "note": "Project or Projects",
+      "as": "word"
+    },
+    "co": {
+      "to": "",
+      "status": "confirm",
+      "note": "County in MARIN CO ..., but could be Company",
+      "as": "word"
+    },
+    "go": {
+      "to": "General Obligation",
+      "status": "confirm",
+      "note": "in fund names such as 1973 PR3 GO BOND; shown as GO until confirmed"
+    },
+    "gf": {
+      "to": "General Fund",
+      "status": "confirm",
+      "note": "dropped from organization names (see prefixes); in the 2 subprogram names that begin with GF it is shown as GF until the County approves the wording"
+    }
+  },
+  "phrases": {
+    "san dist": {
+      "to": "Sanitary District",
+      "status": "certain",
+      "evidence": "the districts named ROSS VALLEY SAN DIST 1, CORTE MADERA SAN DIST 2, TIBURON SAN DIST 5 and NOVATO SANITARY DIST 6 are numbered sanitary districts"
+    }
+  },
+  "prefixes": {
+    "gf": {
+      "strip": true,
+      "kind": "organization",
+      "status": "certain",
+      "evidence": "296 of the 296 organizations that start with GF are in fund 1000, the General Fund, which the row's fund already says"
+    }
+  }
+}

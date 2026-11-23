@@ -1,0 +1,62 @@
+{
+  "$schema": "../vendor/marinos/filter-panel.schema.json",
+  "schemaVersion": "1.0.0",
+  "search": {
+    "id": "vendor-search-input",
+    "fields": [
+      "name",
+      "vendor",
+      "id",
+      "type",
+      "project",
+      "facet.department"
+    ],
+    "match": "phrase"
+  },
+  "groups": [
+    {
+      "type": "checkbox",
+      "id": "department",
+      "label": "Departments",
+      "allLabel": "All departments",
+      "options": {
+        "app": true
+      },
+      "param": "department",
+      "field": "facet.department"
+    },
+    {
+      "type": "checkbox",
+      "id": "type",
+      "label": "Contract types",
+      "allLabel": "All types",
+      "options": {
+        "app": true
+      },
+      "param": "type",
+      "field": "facet.type"
+    },
+    {
+      "type": "checkbox",
+      "id": "status",
+      "label": "Statuses",
+      "allLabel": "All statuses",
+      "options": {
+        "app": true
+      },
+      "param": "status",
+      "field": "facet.status"
+    },
+    {
+      "type": "checkbox",
+      "id": "year",
+      "label": "Years",
+      "allLabel": "All years",
+      "options": {
+        "app": true
+      },
+      "param": "year",
+      "field": "facet.year"
+    }
+  ]
+}

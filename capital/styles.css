@@ -1,5 +1,5 @@
-@import url("../shared/styles.css");
-@import url("../shared/search-layout.css");
+@import url("../shared/styles.css?v=fa402c76");
+@import url("../shared/search-layout.css?v=fa402c76");
 
 /* A hidden project (filtered out) leaves the list and the table. */
 .search-results-list > [hidden],
@@ -21,7 +21,7 @@
 
 .capital-figures dd {
   margin: 0;
-  font-weight: 700;
+  font-weight: 400;
 }
 
 .capital-stats__tables {
@@ -34,10 +34,6 @@
   .capital-stats__tables {
     grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
   }
-}
-
-#active-filters {
-  font-weight: 700;
 }
 
 .search-results > .action-toolbar {
@@ -110,14 +106,10 @@
   margin: 1rem 0;
 }
 
-/* Numbers line up along a row of cards even when one card's label wraps to a second line. */
+/* A tile starts with its number; its words follow. */
 .mm-stats-kpi {
   display: flex;
   flex-direction: column;
-}
-
-.mm-stats-kpi__value {
-  margin-top: auto;
 }
 
 .mm-stats-kpis + .docs-grid {

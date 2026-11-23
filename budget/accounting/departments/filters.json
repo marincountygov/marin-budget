@@ -1,0 +1,163 @@
+{
+  "$schema": "../../../vendor/marinos/filter-panel.schema.json",
+  "schemaVersion": "1.0.0",
+  "groups": [
+    {
+      "type": "checkbox",
+      "id": "measure",
+      "label": "Show",
+      "collapsed": false,
+      "default": [
+        "exp"
+      ],
+      "options": {
+        "values": [
+          {
+            "value": "exp",
+            "label": "Spending"
+          },
+          {
+            "value": "rev",
+            "label": "Revenue"
+          },
+          {
+            "value": "ncc",
+            "label": "Net County cost"
+          },
+          {
+            "value": "cont",
+            "label": "Set-asides"
+          },
+          {
+            "value": "xout",
+            "label": "Transfers to other funds"
+          },
+          {
+            "value": "xin",
+            "label": "Transfers from other funds"
+          },
+          {
+            "value": "pout",
+            "label": "Pass-through payments"
+          },
+          {
+            "value": "pin",
+            "label": "Pass-through receipts"
+          }
+        ]
+      },
+      "param": "measure",
+      "separator": ","
+    },
+    {
+      "type": "checkbox",
+      "id": "basis",
+      "label": "Amounts",
+      "collapsed": false,
+      "default": [
+        "original"
+      ],
+      "options": {
+        "values": [
+          {
+            "value": "original",
+            "label": "Adopted budget"
+          },
+          {
+            "value": "revised",
+            "label": "Current budget"
+          },
+          {
+            "value": "actuals",
+            "label": "Spent or received so far"
+          },
+          {
+            "value": "encumbrance",
+            "label": "Committed"
+          },
+          {
+            "value": "available",
+            "label": "Left to spend or receive"
+          }
+        ]
+      },
+      "param": "basis",
+      "separator": ","
+    },
+    {
+      "type": "checkbox",
+      "id": "year",
+      "label": "Years",
+      "collapsed": false,
+      "default": [
+        "4"
+      ],
+      "options": {
+        "values": [
+          {
+            "value": "0",
+            "label": "FY 2022-23"
+          },
+          {
+            "value": "1",
+            "label": "FY 2023-24"
+          },
+          {
+            "value": "2",
+            "label": "FY 2024-25"
+          },
+          {
+            "value": "3",
+            "label": "FY 2025-26"
+          },
+          {
+            "value": "4",
+            "label": "FY 2026-27"
+          }
+        ]
+      },
+      "param": "year",
+      "separator": ","
+    },
+    {
+      "type": "checkbox",
+      "id": "change",
+      "label": "Compare",
+      "collapsed": false,
+      "default": [],
+      "options": {
+        "values": [
+          {
+            "value": "1",
+            "label": "Show the change between years"
+          }
+        ]
+      },
+      "param": "change",
+      "separator": ","
+    },
+    {
+      "type": "radio",
+      "id": "labels",
+      "label": "Names and codes",
+      "options": {
+        "values": [
+          {
+            "value": "both",
+            "label": "Names and codes"
+          },
+          {
+            "value": "names",
+            "label": "Names only"
+          },
+          {
+            "value": "codes",
+            "label": "Codes only"
+          }
+        ]
+      },
+      "default": "both",
+      "param": "labels"
+    }
+  ]
+}

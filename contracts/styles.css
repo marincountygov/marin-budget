@@ -1,0 +1,13 @@
+@import url("../capital/styles.css?v=fa402c76");
+
+#more-row {
+  display: flex;
+  justify-content: center;
+  margin: 1rem 0 0;
+}
+
+.chart-box {
+  position: relative;
+  width: 100%;
+}
+

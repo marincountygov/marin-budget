@@ -1,0 +1,503 @@
+{
+  "sources": [
+    "COA Object List.xlsx",
+    "COA Org with Long Account Mapping.xlsx"
+  ],
+  "schemaGovReference": "https://schema.govfresh.com/profiles/budget/",
+  "counts": {
+    "departments": 123,
+    "divisions": 187,
+    "organizations": 2636,
+    "funds": 792,
+    "programs": 386,
+    "subprograms": 589,
+    "functionalActivities": 33,
+    "objects": 1015,
+    "schemaGovEntities": 1488
+  },
+  "conflicts": [
+    {
+      "dimension": "divisions",
+      "code": "6501",
+      "field": "department",
+      "values": [
+        "605",
+        "650"
+      ]
+    },
+    {
+      "dimension": "divisions",
+      "code": "9001",
+      "field": "department",
+      "values": [
+        "100",
+        "320",
+        "900"
+      ]
+    },
+    {
+      "dimension": "programs",
+      "code": "1000",
+      "field": "division",
+      "values": [
+        "1001",
+        "1003",
+        "1006"
+      ]
+    },
+    {
+      "dimension": "programs",
+      "code": "1100",
+      "field": "division",
+      "values": [
+        "1002",
+        "1006"
+      ]
+    },
+    {
+      "dimension": "programs",
+      "code": "1110",
+      "field": "division",
+      "values": [
+        "1001",
+        "1002"
+      ]
+    },
+    {
+      "dimension": "programs",
+      "code": "1200",
+      "field": "division",
+      "values": [
+        "1003",
+        "1006"
+      ]
+    },
+    {
+      "dimension": "programs",
+      "code": "1400",
+      "field": "division",
+      "values": [
+        "1004",
+        "1006"
+      ]
+    },
+    {
+      "dimension": "programs",
+      "code": "1600",
+      "field": "division",
+      "values": [
+        "1005",
+        "1006"
+      ]
+    },
+    {
+      "dimension": "programs",
+      "code": "2400",
+      "field": "division",
+      "values": [
+        "2401",
+        "2403"
+      ]
+    },
+    {
+      "dimension": "programs",
+      "code": "2410",
+      "field": "division",
+      "values": [
+        "2401",
+        "2403"
+      ]
+    },
+    {
+      "dimension": "programs",
+      "code": "2820",
+      "field": "division",
+      "values": [
+        "2601",
+        "2603"
+      ]
+    },
+    {
+      "dimension": "programs",
+      "code": "2840",
+      "field": "division",
+      "values": [
+        "2602",
+        "2604"
+      ]
+    },
+    {
+      "dimension": "programs",
+      "code": "3130",
+      "field": "division",
+      "values": [
+        "3001",
+        "9001"
+      ]
+    },
+    {
+      "dimension": "programs",
+      "code": "3160",
+      "field": "division",
+      "values": [
+        "3003",
+        "3506"
+      ]
+    },
+    {
+      "dimension": "programs",
+      "code": "3180",
+      "field": "division",
+      "values": [
+        "3001",
+        "3004"
+      ]
+    },
+    {
+      "dimension": "programs",
+      "code": "3210",
+      "field": "division",
+      "values": [
+        "3001",
+        "3007"
+      ]
+    },
+    {
+      "dimension": "programs",
+      "code": "3540",
+      "field": "division",
+      "values": [
+        "3103",
+        "3203"
+      ]
+    },
+    {
+      "dimension": "programs",
+      "code": "3550",
+      "field": "division",
+      "values": [
+        "3103",
+        "3203"
+      ]
+    },
+    {
+      "dimension": "programs",
+      "code": "3590",
+      "field": "division",
+      "values": [
+        "3201",
+        "3204"
+      ]
+    },
+    {
+      "dimension": "programs",
+      "code": "4020",
+      "field": "division",
+      "values": [
+        "3601",
+        "3603"
+      ]
+    },
+    {
+      "dimension": "programs",
+      "code": "4030",
+      "field": "division",
+      "values": [
+        "3601",
+        "3604"
+      ]
+    },
+    {
+      "dimension": "programs",
+      "code": "4040",
+      "field": "division",
+      "values": [
+        "3601",
+        "3602",
+        "3603"
+      ]
+    },
+    {
+      "dimension": "programs",
+      "code": "4090",
+      "field": "division",
+      "values": [
+        "3601",
+        "3604"
+      ]
+    },
+    {
+      "dimension": "programs",
+      "code": "4140",
+      "field": "division",
+      "values": [
+        "3602",
+        "3603",
+        "3606"
+      ]
+    },
+    {
+      "dimension": "programs",
+      "code": "4150",
+      "field": "division",
+      "values": [
+        "3603",
+        "3604"
+      ]
+    },
+    {
+      "dimension": "programs",
+      "code": "4160",
+      "field": "division",
+      "values": [
+        "3603",
+        "3606"
+      ]
+    },
+    {
+      "dimension": "programs",
+      "code": "4170",
+      "field": "division",
+      "values": [
+        "3603",
+        "3604"
+      ]
+    },
+    {
+      "dimension": "programs",
+      "code": "4210",
+      "field": "division",
+      "values": [
+        "3602",
+        "3606"
+      ]
+    },
+    {
+      "dimension": "programs",
+      "code": "4220",
+      "field": "division",
+      "values": [
+        "3602",
+        "3606"
+      ]
+    },
+    {
+      "dimension": "programs",
+      "code": "4240",
+      "field": "division",
+      "values": [
+        "3601",
+        "3604"
+      ]
+    },
+    {
+      "dimension": "programs",
+      "code": "5070",
+      "field": "division",
+      "values": [
+        "4001",
+        "4003"
+      ]
+    },
+    {
+      "dimension": "programs",
+      "code": "5530",
+      "field": "division",
+      "values": [
+        "4101",
+        "4102"
+      ]
+    },
+    {
+      "dimension": "programs",
+      "code": "5550",
+      "field": "division",
+      "values": [
+        "4101",
+        "4102"
+      ]
+    },
+    {
+      "dimension": "programs",
+      "code": "5620",
+      "field": "division",
+      "values": [
+        "2303",
+        "4101"
+      ]
+    },
+    {
+      "dimension": "programs",
+      "code": "6510",
+      "field": "division",
+      "values": [
+        "5401",
+        "5404"
+      ]
+    },
+    {
+      "dimension": "programs",
+      "code": "6550",
+      "field": "division",
+      "values": [
+        "5402",
+        "5403"
+      ]
+    },
+    {
+      "dimension": "programs",
+      "code": "6580",
+      "field": "division",
+      "values": [
+        "5402",
+        "5403"
+      ]
+    },
+    {
+      "dimension": "programs",
+      "code": "6620",
+      "field": "division",
+      "values": [
+        "5402",
+        "5404"
+      ]
+    },
+    {
+      "dimension": "programs",
+      "code": "6630",
+      "field": "division",
+      "values": [
+        "5402",
+        "5404"
+      ]
+    },
+    {
+      "dimension": "programs",
+      "code": "6640",
+      "field": "division",
+      "values": [
+        "5402",
+        "5404"
+      ]
+    },
+    {
+      "dimension": "programs",
+      "code": "6650",
+      "field": "division",
+      "values": [
+        "5402",
+        "5404"
+      ]
+    },
+    {
+      "dimension": "programs",
+      "code": "6660",
+      "field": "division",
+      "values": [
+        "5402",
+        "5404"
+      ]
+    },
+    {
+      "dimension": "programs",
+      "code": "6670",
+      "field": "division",
+      "values": [
+        "5402",
+        "5404"
+      ]
+    },
+    {
+      "dimension": "programs",
+      "code": "6700",
+      "field": "division",
+      "values": [
+        "5402",
+        "5404"
+      ]
+    },
+    {
+      "dimension": "programs",
+      "code": "6710",
+      "field": "division",
+      "values": [
+        "5402",
+        "5404"
+      ]
+    },
+    {
+      "dimension": "programs",
+      "code": "6720",
+      "field": "division",
+      "values": [
+        "5402",
+        "5404"
+      ]
+    },
+    {
+      "dimension": "programs",
+      "code": "6730",
+      "field": "division",
+      "values": [
+        "5401",
+        "5402",
+        "5404"
+      ]
+    },
+    {
+      "dimension": "programs",
+      "code": "7230",
+      "field": "division",
+      "values": [
+        "6281",
+        "7231"
+      ]
+    },
+    {
+      "dimension": "programs",
+      "code": "8030",
+      "field": "division",
+      "values": [
+        "6081",
+        "6082"
+      ]
+    },
+    {
+      "dimension": "programs",
+      "code": "8360",
+      "field": "division",
+      "values": [
+        "6231",
+        "6321"
+      ]
+    },
+    {
+      "dimension": "programs",
+      "code": "8930",
+      "field": "division",
+      "values": [
+        "6051",
+        "6501"
+      ]
+    },
+    {
+      "dimension": "programs",
+      "code": "9540",
+      "field": "division",
+      "values": [
+        "2602",
+        "9002"
+      ]
+    }
+  ],
+  "modelingNotes": [
+    "Departments and divisions are represented as schemaGov/schema.org GovernmentOrganization entities.",
+    "Programs are schemaGov Program entities.",
+    "Funds are schemaGov Fund entities.",
+    "Munis organization codes are preserved as a local accounting dimension because the source does not establish that each accounting org is a distinct GovernmentOrganization.",
+    "Subprograms are preserved as a local dimension; schemaGov does not define a standalone Subprogram class.",
+    "Accounting objects are preserved as a local chart-of-accounts dimension; they are not BudgetLine because this source contains no budget amounts or fiscal-period budget lines.",
+    "FUNC-ACT is preserved as a local functionalActivity code and is not mapped to COFOG without an explicit crosswalk.",
+    "Fixed-asset fields are preserved exactly from the source rather than interpreted."
+  ]
+}

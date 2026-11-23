@@ -1,0 +1,221 @@
+{
+ "labels": {
+  "spending": "Spending, adopted budget, FY 2026-27",
+  "revenue": "Revenue, adopted budget, FY 2026-27",
+  "spendingStem": "Spending, adopted budget"
+ },
+ "exportDate": "2026-11-18",
+ "year": "FY 2026-27",
+ "previousYear": "FY 2025-26",
+ "yearIndex": 4,
+ "previousYearIndex": 3,
+ "scope": "departments that have an FY 2026-27 budget",
+ "statusHas": "FY 2026-27 budget",
+ "totals": {
+  "spending": 902133160.08,
+  "spendingBefore": 854592901,
+  "revenue": 906746152.68,
+  "departments": 72
+ },
+ "serviceAreas": [
+  {
+   "name": "Community & Environment",
+   "spending": 238239747.03,
+   "spendingBefore": 224468381,
+   "departments": 8
+  },
+  {
+   "name": "Health & Human Services",
+   "spending": 333657600,
+   "spendingBefore": 306970799,
+   "departments": 1
+  },
+  {
+   "name": "Justice & Welfare",
+   "spending": 158616942.06,
+   "spendingBefore": 147842375,
+   "departments": 5
+  },
+  {
+   "name": "Operations & Resources",
+   "spending": 123089769.97,
+   "spendingBefore": 112779952,
+   "departments": 8
+  },
+  {
+   "name": "No service area",
+   "spending": 48529101.02,
+   "spendingBefore": 62531394,
+   "departments": 50
+  }
+ ],
+ "largest": [
+  {
+   "name": "Health and Human Services",
+   "code": "100",
+   "serviceArea": "Health & Human Services",
+   "spending": 333657600
+  },
+  {
+   "name": "Public Works",
+   "code": "410",
+   "serviceArea": "Community & Environment",
+   "spending": 91403761
+  },
+  {
+   "name": "Sheriff",
+   "code": "260",
+   "serviceArea": "Justice & Welfare",
+   "spending": 87933926.06
+  },
+  {
+   "name": "Fire Department",
+   "code": "230",
+   "serviceArea": "Community & Environment",
+   "spending": 60266020
+  },
+  {
+   "name": "Probation",
+   "code": "240",
+   "serviceArea": "Justice & Welfare",
+   "spending": 32163332
+  },
+  {
+   "name": "Human Resources",
+   "code": "350",
+   "serviceArea": "Operations & Resources",
+   "spending": 29661256
+  },
+  {
+   "name": "Information Services and Technology",
+   "code": "360",
+   "serviceArea": "Operations & Resources",
+   "spending": 29502083
+  },
+  {
+   "name": "Marin County Free Library",
+   "code": "540",
+   "serviceArea": "Community & Environment",
+   "spending": 27303294
+  }
+ ],
+ "position": {
+  "names": {
+   "current": "Spending, current budget, FY 2026-27",
+   "spent": "Spending, spent so far, FY 2026-27",
+   "committed": "Spending, committed, FY 2026-27",
+   "left": "Spending, left to spend, FY 2026-27",
+   "ncc": "Net County cost, adopted budget, FY 2026-27"
+  },
+  "shortNames": {
+   "current": "Current budget",
+   "spent": "Spent so far",
+   "committed": "Committed",
+   "left": "Left to spend",
+   "ncc": "Adopted budget"
+  },
+  "totals": {
+   "current": 1192326367.91,
+   "spent": 320258138.16,
+   "committed": 228212255.78,
+   "left": 643855973.97
+  },
+  "serviceAreas": [
+   {
+    "name": "Community & Environment",
+    "current": 386389083.43,
+    "spent": 105504956.66,
+    "committed": 77778911.24,
+    "left": 203105215.53
+   },
+   {
+    "name": "Health & Human Services",
+    "current": 382970659.76,
+    "spent": 102645798,
+    "committed": 100383080.12,
+    "left": 179941781.64
+   },
+   {
+    "name": "Justice & Welfare",
+    "current": 172947220.48,
+    "spent": 46963162.77,
+    "committed": 13566051.62,
+    "left": 112418006.09
+   },
+   {
+    "name": "Operations & Resources",
+    "current": 145963586.07,
+    "spent": 41934490.22,
+    "committed": 6439136.18,
+    "left": 97589959.67
+   },
+   {
+    "name": "No service area",
+    "current": 104055818.17,
+    "spent": 23209730.51,
+    "committed": 30045076.62,
+    "left": 50801011.04
+   }
+  ],
+  "largestNetCountyCost": [
+   {
+    "name": "Health and Human Services",
+    "code": "100",
+    "serviceArea": "Health & Human Services",
+    "value": 84453164
+   },
+   {
+    "name": "Sheriff",
+    "code": "260",
+    "serviceArea": "Justice & Welfare",
+    "value": 55950058
+   },
+   {
+    "name": "Public Works",
+    "code": "410",
+    "serviceArea": "Community & Environment",
+    "value": 25156256
+   },
+   {
+    "name": "Information Services and Technology",
+    "code": "360",
+    "serviceArea": "Operations & Resources",
+    "value": 23837677
+   },
+   {
+    "name": "Human Resources",
+    "code": "350",
+    "serviceArea": "Operations & Resources",
+    "value": 19369250
+   },
+   {
+    "name": "Office of the County Executive",
+    "code": "300",
+    "serviceArea": "Operations & Resources",
+    "value": 15263272.97
+   },
+   {
+    "name": "Fire Department",
+    "code": "230",
+    "serviceArea": "Community & Environment",
+    "value": 15195501
+   },
+   {
+    "name": "Probation",
+    "code": "240",
+    "serviceArea": "Justice & Welfare",
+    "value": 14439218
+   }
+  ],
+  "links": {
+   "position": "measure=exp&basis=revised,actuals,encumbrance,available&year=4",
+   "ncc": "measure=ncc&basis=original&year=4",
+   "bases": {
+    "current": "revised",
+    "spent": "actuals",
+    "committed": "encumbrance",
+    "left": "available"
+   }
+  }
+ }
+}

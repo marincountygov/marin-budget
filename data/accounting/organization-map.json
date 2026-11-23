@@ -1,0 +1,748 @@
+{
+ "source": "The departments of data/accounting/dimensions.json against marin-data organizations.jsonld, external-organizations.jsonld and aliases.json",
+ "note": "A match by code or name is one organization for one department. A candidate is only offered: the names share most of their words, and a person confirms it. marin-data was not changed.",
+ "counts": {
+  "departments": 122,
+  "code": 25,
+  "name": 0,
+  "candidate": 0,
+  "none": 97
+ },
+ "departments": [
+  {
+   "code": "100",
+   "name": "HEALTH AND HUMAN SERVICES",
+   "match": "code",
+   "organization": "https://marincountygov.github.io/marin-data/id/organization/hhs",
+   "organizationName": "Health and Human Services",
+   "organizationType": "department",
+   "source": "organizations.jsonld",
+   "namesAgree": true
+  },
+  {
+   "code": "200",
+   "name": "CHILD SUPPORT SERVICES",
+   "match": "code",
+   "organization": "https://marincountygov.github.io/marin-data/id/organization/css",
+   "organizationName": "Child Support Services",
+   "organizationType": "department",
+   "source": "organizations.jsonld",
+   "namesAgree": true
+  },
+  {
+   "code": "220",
+   "name": "DISTRICT ATTORNEY",
+   "match": "code",
+   "organization": "https://marincountygov.github.io/marin-data/id/organization/da",
+   "organizationName": "District Attorney",
+   "organizationType": "department",
+   "source": "organizations.jsonld",
+   "namesAgree": true
+  },
+  {
+   "code": "230",
+   "name": "MARIN COUNTY FIRE",
+   "match": "code",
+   "organization": "https://marincountygov.github.io/marin-data/id/organization/fire",
+   "organizationName": "Fire Department",
+   "organizationType": "department",
+   "source": "organizations.jsonld",
+   "namesAgree": true
+  },
+  {
+   "code": "240",
+   "name": "PROBATION",
+   "match": "code",
+   "organization": "https://marincountygov.github.io/marin-data/id/organization/probation",
+   "organizationName": "Probation",
+   "organizationType": "department",
+   "source": "organizations.jsonld",
+   "namesAgree": true
+  },
+  {
+   "code": "250",
+   "name": "PUBLIC DEFENDER",
+   "match": "code",
+   "organization": "https://marincountygov.github.io/marin-data/id/organization/public-defender",
+   "organizationName": "Public Defender",
+   "organizationType": "department",
+   "source": "organizations.jsonld",
+   "namesAgree": true
+  },
+  {
+   "code": "260",
+   "name": "SHERIFF CORONERS OFFICE",
+   "match": "code",
+   "organization": "https://marincountygov.github.io/marin-data/id/organization/sheriff",
+   "organizationName": "Sheriff",
+   "organizationType": "department",
+   "source": "organizations.jsonld",
+   "namesAgree": true
+  },
+  {
+   "code": "300",
+   "name": "OFFICE OF THE COUNTY EXECUTIVE",
+   "match": "code",
+   "organization": "https://marincountygov.github.io/marin-data/id/organization/county-executive",
+   "organizationName": "Office of the County Executive",
+   "organizationType": "department",
+   "source": "organizations.jsonld",
+   "namesAgree": true
+  },
+  {
+   "code": "310",
+   "name": "ASSESSOR RECORDER COUNTY CLERK",
+   "match": "code",
+   "organization": "https://marincountygov.github.io/marin-data/id/organization/arcc",
+   "organizationName": "Assessor, Recorder, County Clerk",
+   "organizationType": "department",
+   "source": "organizations.jsonld",
+   "namesAgree": true
+  },
+  {
+   "code": "320",
+   "name": "DEPARTMENT OF FINANCE",
+   "match": "code",
+   "organization": "https://marincountygov.github.io/marin-data/id/organization/finance",
+   "organizationName": "Department of Finance",
+   "organizationType": "department",
+   "source": "organizations.jsonld",
+   "namesAgree": true
+  },
+  {
+   "code": "330",
+   "name": "BOARD OF SUPERVISORS",
+   "match": "code",
+   "organization": "https://marincountygov.github.io/marin-data/id/organization/board",
+   "organizationName": "Board of Supervisors",
+   "organizationType": "legislature",
+   "source": "organizations.jsonld",
+   "namesAgree": true
+  },
+  {
+   "code": "340",
+   "name": "COUNTY COUNSEL",
+   "match": "code",
+   "organization": "https://marincountygov.github.io/marin-data/id/organization/county-counsel",
+   "organizationName": "County Counsel",
+   "organizationType": "department",
+   "source": "organizations.jsonld",
+   "namesAgree": true
+  },
+  {
+   "code": "350",
+   "name": "HUMAN RESOURCES",
+   "match": "code",
+   "organization": "https://marincountygov.github.io/marin-data/id/organization/hr",
+   "organizationName": "Human Resources",
+   "organizationType": "department",
+   "source": "organizations.jsonld",
+   "namesAgree": true
+  },
+  {
+   "code": "360",
+   "name": "INFORMATION SVC AND TECHNOLOGY",
+   "match": "code",
+   "organization": "https://marincountygov.github.io/marin-data/id/organization/ist",
+   "organizationName": "Information Services and Technology",
+   "organizationType": "department",
+   "source": "organizations.jsonld",
+   "namesAgree": true
+  },
+  {
+   "code": "370",
+   "name": "RETIREES",
+   "match": "none"
+  },
+  {
+   "code": "380",
+   "name": "MCERA",
+   "match": "code",
+   "organization": "https://marincountygov.github.io/marin-data/id/organization/retirement",
+   "organizationName": "Retirement",
+   "organizationType": "department",
+   "source": "organizations.jsonld",
+   "namesAgree": true
+  },
+  {
+   "code": "390",
+   "name": "ELECTIONS",
+   "match": "code",
+   "organization": "https://marincountygov.github.io/marin-data/id/organization/elections",
+   "organizationName": "Elections (Registrar of Voters)",
+   "organizationType": "department",
+   "source": "organizations.jsonld",
+   "namesAgree": true
+  },
+  {
+   "code": "400",
+   "name": "COMMUNITY DEVELOPMENT AGENCY",
+   "match": "code",
+   "organization": "https://marincountygov.github.io/marin-data/id/organization/cda",
+   "organizationName": "Community Development Agency",
+   "organizationType": "department",
+   "source": "organizations.jsonld",
+   "namesAgree": true
+  },
+  {
+   "code": "410",
+   "name": "DEPARTMENT OF PUBLIC WORKS",
+   "match": "code",
+   "organization": "https://marincountygov.github.io/marin-data/id/organization/public-works",
+   "organizationName": "Public Works",
+   "organizationType": "department",
+   "source": "organizations.jsonld",
+   "namesAgree": true
+  },
+  {
+   "code": "500",
+   "name": "AGRICULTURE WEIGHTS MEASURES",
+   "match": "code",
+   "organization": "https://marincountygov.github.io/marin-data/id/organization/awm",
+   "organizationName": "Agriculture, Weights and Measures",
+   "organizationType": "department",
+   "source": "organizations.jsonld",
+   "namesAgree": true
+  },
+  {
+   "code": "510",
+   "name": "UC COOPERATIVE EXTENSION MARIN",
+   "match": "code",
+   "organization": "https://marincountygov.github.io/marin-data/id/organization/uc-extension",
+   "organizationName": "UC Cooperative Extension (Farm Advisor)",
+   "organizationType": "department",
+   "source": "organizations.jsonld",
+   "namesAgree": true
+  },
+  {
+   "code": "520",
+   "name": "MARIN COUNTY PARKS",
+   "match": "code",
+   "organization": "https://marincountygov.github.io/marin-data/id/organization/parks",
+   "organizationName": "Parks",
+   "organizationType": "department",
+   "source": "organizations.jsonld",
+   "namesAgree": true
+  },
+  {
+   "code": "530",
+   "name": "CULTURAL SERVICES",
+   "match": "code",
+   "organization": "https://marincountygov.github.io/marin-data/id/organization/cultural-services",
+   "organizationName": "Cultural Services",
+   "organizationType": "department",
+   "source": "organizations.jsonld",
+   "namesAgree": true
+  },
+  {
+   "code": "540",
+   "name": "MARIN COUNTY FREE LIBRARY",
+   "match": "code",
+   "organization": "https://marincountygov.github.io/marin-data/id/organization/library",
+   "organizationName": "Marin County Free Library",
+   "organizationType": "department",
+   "source": "organizations.jsonld",
+   "namesAgree": true
+  },
+  {
+   "code": "601",
+   "name": "MCOE",
+   "match": "none"
+  },
+  {
+   "code": "602",
+   "name": "MARIN COMMUNITY COLL",
+   "match": "none"
+  },
+  {
+   "code": "603",
+   "name": "NOVATO SCHOOL DIST",
+   "match": "none"
+  },
+  {
+   "code": "605",
+   "name": "SONOMA SCHOOL DIST",
+   "match": "none"
+  },
+  {
+   "code": "606",
+   "name": "BEL MARIN KEYS CSD",
+   "match": "none"
+  },
+  {
+   "code": "607",
+   "name": "MARIN CITY CSD",
+   "match": "none"
+  },
+  {
+   "code": "608",
+   "name": "MARINWOOD CSD",
+   "match": "none"
+  },
+  {
+   "code": "609",
+   "name": "MUIR BEACH CSD",
+   "match": "none"
+  },
+  {
+   "code": "610",
+   "name": "MARIN WILDLIFE PREVENTION AUTH",
+   "match": "none"
+  },
+  {
+   "code": "611",
+   "name": "TAMALPAIS CSD",
+   "match": "none"
+  },
+  {
+   "code": "612",
+   "name": "TOMALES VILLAGE CSD",
+   "match": "none"
+  },
+  {
+   "code": "613",
+   "name": "BOLINAS FPD",
+   "match": "none"
+  },
+  {
+   "code": "614",
+   "name": "KENTFIELD FPD",
+   "match": "none"
+  },
+  {
+   "code": "615",
+   "name": "NOVATO FPD",
+   "match": "none"
+  },
+  {
+   "code": "616",
+   "name": "SLEEPY HOLLOW FPD",
+   "match": "none"
+  },
+  {
+   "code": "617",
+   "name": "SO MARIN FPD",
+   "match": "none"
+  },
+  {
+   "code": "618",
+   "name": "STINSON BEACH FPD",
+   "match": "none"
+  },
+  {
+   "code": "619",
+   "name": "TIBURON FPD",
+   "match": "none"
+  },
+  {
+   "code": "621",
+   "name": "ROSS VALLEY PARAMEDIC",
+   "match": "none"
+  },
+  {
+   "code": "622",
+   "name": "ROSS VALLEY SAN DIST 1",
+   "match": "none"
+  },
+  {
+   "code": "623",
+   "name": "CORTE MADERA SAN DIST 2",
+   "match": "none"
+  },
+  {
+   "code": "624",
+   "name": "TIBURON SAN DIST 5",
+   "match": "none"
+  },
+  {
+   "code": "625",
+   "name": "NOVATO SANITARY DIST 6",
+   "match": "none"
+  },
+  {
+   "code": "626",
+   "name": "ALMONTE SANITARY DIST",
+   "match": "none"
+  },
+  {
+   "code": "627",
+   "name": "ALTO SANITARY DIST",
+   "match": "none"
+  },
+  {
+   "code": "628",
+   "name": "HOMESTEAD VALLEY SANITARY DIST",
+   "match": "none"
+  },
+  {
+   "code": "629",
+   "name": "LAS GALLINAS VLY SANITARY DIST",
+   "match": "none"
+  },
+  {
+   "code": "631",
+   "name": "RICHARDSON BAY SANITARY DIST",
+   "match": "none"
+  },
+  {
+   "code": "632",
+   "name": "SAN RAFAEL SANITATION DIST",
+   "match": "none"
+  },
+  {
+   "code": "633",
+   "name": "SAUS-MARIN CITY SANITARY DIST",
+   "match": "none"
+  },
+  {
+   "code": "634",
+   "name": "BOLINAS COMMUNITY PUD",
+   "match": "none"
+  },
+  {
+   "code": "635",
+   "name": "INVERNESS PUD",
+   "match": "none"
+  },
+  {
+   "code": "636",
+   "name": "NORTH MARIN COUNTY WATER DIST",
+   "match": "none"
+  },
+  {
+   "code": "637",
+   "name": "STINSON BEACH WATER DIST",
+   "match": "none"
+  },
+  {
+   "code": "638",
+   "name": "STRAWBERRY RECREATION DIST",
+   "match": "none"
+  },
+  {
+   "code": "639",
+   "name": "RICHARDSON BAY REGIONAL TRUST",
+   "match": "none"
+  },
+  {
+   "code": "640",
+   "name": "BAY AREA AIR QUALITY MNGMENT",
+   "match": "none"
+  },
+  {
+   "code": "641",
+   "name": "CA STREET LIGHTING ASSN JPA",
+   "match": "none"
+  },
+  {
+   "code": "642",
+   "name": "LOCAL AGENCY FORMATION COMM",
+   "match": "none"
+  },
+  {
+   "code": "643",
+   "name": "MARIN CO RESOURCE CONSER DIST",
+   "match": "none"
+  },
+  {
+   "code": "644",
+   "name": "ENTITIES MNG BY DPW",
+   "match": "none"
+  },
+  {
+   "code": "645",
+   "name": "MARIN EMERGENCY RADIO AUTH JPA",
+   "match": "none"
+  },
+  {
+   "code": "646",
+   "name": "CHILDREN AND FAMILIES COMMISS",
+   "match": "none"
+  },
+  {
+   "code": "647",
+   "name": "MARIN GENERAL SVC AUTH JPA",
+   "match": "none"
+  },
+  {
+   "code": "648",
+   "name": "MARIN TELCO AGCY JPA",
+   "match": "none"
+  },
+  {
+   "code": "650",
+   "name": "MRNSON MOSQTO - VCTR CNTRL DST",
+   "match": "none"
+  },
+  {
+   "code": "651",
+   "name": "MARINET CONSORTIUM",
+   "match": "none"
+  },
+  {
+   "code": "652",
+   "name": "TRANSPORTATION AUTH OF MARIN",
+   "match": "none"
+  },
+  {
+   "code": "653",
+   "name": "ZERO WASTE JPA",
+   "match": "code",
+   "organization": "https://marincountygov.github.io/marin-data/id/organization/zero-waste-marin",
+   "organizationName": "Zero Waste Marin",
+   "organizationType": "authority",
+   "source": "external-organizations.jsonld",
+   "namesAgree": true
+  },
+  {
+   "code": "655",
+   "name": "RUSH CREEK LIGHTING",
+   "match": "none"
+  },
+  {
+   "code": "656",
+   "name": "MARIN COUNTY LIGHTING",
+   "match": "none"
+  },
+  {
+   "code": "657",
+   "name": "MARIN CO REDEVELOPMENT AGENCY",
+   "match": "none"
+  },
+  {
+   "code": "658",
+   "name": "MARIN COUNTY TRANSIT",
+   "match": "code",
+   "organization": "https://marincountygov.github.io/marin-data/id/organization/marin-transit",
+   "organizationName": "Marin Transit",
+   "organizationType": "authority",
+   "source": "external-organizations.jsonld",
+   "namesAgree": true
+  },
+  {
+   "code": "659",
+   "name": "MARIN COUNTY OPEN SPACE",
+   "match": "none"
+  },
+  {
+   "code": "660",
+   "name": "WORKFORCE ALLIANCE OF NB JPA",
+   "match": "none"
+  },
+  {
+   "code": "661",
+   "name": "MARIN COUNTY PUBLIC FIN AUTHOR",
+   "match": "none"
+  },
+  {
+   "code": "701",
+   "name": "LAW LIBRARY",
+   "match": "none"
+  },
+  {
+   "code": "702",
+   "name": "IHSS PUBLIC AUTHORITY",
+   "match": "none"
+  },
+  {
+   "code": "703",
+   "name": "FCZ 1 NOVATO",
+   "match": "none"
+  },
+  {
+   "code": "704",
+   "name": "FCZ 3 RICHARDSON BAY",
+   "match": "none"
+  },
+  {
+   "code": "705",
+   "name": "FCZ 4A STRAWBERRY",
+   "match": "none"
+  },
+  {
+   "code": "706",
+   "name": "FCZ 5 STINSON BEACH",
+   "match": "none"
+  },
+  {
+   "code": "707",
+   "name": "FCZ 6 SAN RAFAEL MEADOWS",
+   "match": "none"
+  },
+  {
+   "code": "708",
+   "name": "FCZ 7 SANTA VENETIA",
+   "match": "none"
+  },
+  {
+   "code": "709",
+   "name": "FCZ 9 ROSS VALLEY",
+   "match": "none"
+  },
+  {
+   "code": "710",
+   "name": "FCZ 10 INVERNESS",
+   "match": "none"
+  },
+  {
+   "code": "711",
+   "name": "BOLINAS HIGHLANDS PRD",
+   "match": "none"
+  },
+  {
+   "code": "712",
+   "name": "INVERNESS DIV 2 PRD",
+   "match": "none"
+  },
+  {
+   "code": "713",
+   "name": "MADRONE PARK CIRCLE PRD",
+   "match": "none"
+  },
+  {
+   "code": "714",
+   "name": "MONTE CRISTO PRD",
+   "match": "none"
+  },
+  {
+   "code": "715",
+   "name": "MT VIEW AVE LAGUNITAS PRD",
+   "match": "none"
+  },
+  {
+   "code": "716",
+   "name": "PARADISE ESTATES PRD",
+   "match": "none"
+  },
+  {
+   "code": "717",
+   "name": "MURRAY PARK SMD",
+   "match": "none"
+  },
+  {
+   "code": "718",
+   "name": "SAN QUENTIN SMD",
+   "match": "none"
+  },
+  {
+   "code": "719",
+   "name": "CSA 1 LOMA VERDE",
+   "match": "none"
+  },
+  {
+   "code": "720",
+   "name": "CSA 6 SANTA VENETIA",
+   "match": "none"
+  },
+  {
+   "code": "721",
+   "name": "CSA 9 NORTHBRIDGE",
+   "match": "none"
+  },
+  {
+   "code": "722",
+   "name": "CSA  13 MARIN CO UPPER LUCAS",
+   "match": "none"
+  },
+  {
+   "code": "723",
+   "name": "CSA 14  HOMESTEAD VALLEY",
+   "match": "none"
+  },
+  {
+   "code": "724",
+   "name": "CSA 16 GREENBRAE",
+   "match": "none"
+  },
+  {
+   "code": "725",
+   "name": "CSA 17 KENTFIELD",
+   "match": "none"
+  },
+  {
+   "code": "726",
+   "name": "CSA 18 GALLINAS VILLAGE AREA",
+   "match": "none"
+  },
+  {
+   "code": "727",
+   "name": "CSA 19 FIRE PROTECTION SVC",
+   "match": "none"
+  },
+  {
+   "code": "728",
+   "name": "CSA 20 INDIAN VALLEY",
+   "match": "none"
+  },
+  {
+   "code": "729",
+   "name": "CSA 27 ROSS VALLEY  PARAMEDIC",
+   "match": "none"
+  },
+  {
+   "code": "730",
+   "name": "CSA 28 W MARIN PARAMEDIC",
+   "match": "none"
+  },
+  {
+   "code": "731",
+   "name": "CSA 29 PARADISE CAY",
+   "match": "none"
+  },
+  {
+   "code": "732",
+   "name": "CSA 31 COUNTY FIRE",
+   "match": "none"
+  },
+  {
+   "code": "733",
+   "name": "CSA 33 STINSON BEACH",
+   "match": "none"
+  },
+  {
+   "code": "734",
+   "name": "CSA 17 POLICE SERVICES",
+   "match": "none"
+  },
+  {
+   "code": "735",
+   "name": "FCZ 4 BEL AIRE",
+   "match": "none"
+  },
+  {
+   "code": "736",
+   "name": "FCZ 9A ROSS VLLY CORTE MADERA",
+   "match": "none"
+  },
+  {
+   "code": "738",
+   "name": "WOODACRE CREEK RESTORATION",
+   "match": "none"
+  },
+  {
+   "code": "740",
+   "name": "INVERNES #2A PRD",
+   "match": "none"
+  },
+  {
+   "code": "741",
+   "name": "RIDGEWOOD PRD",
+   "match": "none"
+  },
+  {
+   "code": "742",
+   "name": "MADRONE PARK CIRCLE 2 PRD",
+   "match": "none"
+  },
+  {
+   "code": "743",
+   "name": "ALTA VISTA ROAD PRD",
+   "match": "none"
+  },
+  {
+   "code": "900",
+   "name": "NON DEPARTMENTAL",
+   "match": "none"
+  }
+ ]
+}

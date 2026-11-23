@@ -1,0 +1,10 @@
+{
+  "source": "Budget analysts (Joe and Carlos), answer to the question about service areas, received 2026-11-20",
+  "note": "Written by hand from the County's answer. A department that is not listed has no service area until the County says where it belongs.",
+  "serviceAreas": [
+    { "id": "community-and-environment", "name": "Community & Environment", "departments": ["500", "400", "530", "230", "540", "520", "410", "510"] },
+    { "id": "health-and-human-services", "name": "Health & Human Services", "departments": ["100"] },
+    { "id": "justice-and-welfare", "name": "Justice & Welfare", "departments": ["200", "240", "250", "260", "220"] },
+    { "id": "operations-and-resources", "name": "Operations & Resources", "departments": ["300", "390", "320", "350", "360", "310", "380", "340"] }
+  ]
+}

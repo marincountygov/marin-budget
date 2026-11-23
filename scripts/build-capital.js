@@ -11,8 +11,10 @@ const fs = require('fs');
 const path = require('path');
 const bd = require('./budget-data');
 const { shell } = require('./budget-shell');
-const { actions, chartActions, jsonBlock } = require('./page-actions');
+const { writeSection } = require('./data-sections');
+const { actions, chartActions, jsonBlock, fullscreenButton, statTablesIn } = require('./page-actions');
 const { ICON_BANKNOTE } = require('./icons');
+const { filterColumn } = require('./filter-column');
 
 const ROOT = path.join(__dirname, '..');
 const OUT = path.join(ROOT, 'capital');
@@ -107,19 +109,21 @@ const attrs = (p, i) => `data-project="${slugOf(p['@id'])}" data-order="${i}" da
   `data-category="${esc(p.category)}" data-subcategory="${esc(p.subcategory || '')}" data-page="${p.page}" ` + COLS.map((c) => `data-y${c.key}="${p.byYear[c.key]}"`).join(' ');
 const fig = (label, v) => `<div><dt>${esc(label)}</dt><dd>${money(v)}</dd></div>`;
 const pick = (p) => `<span class="mm-card__select"><label class="visually-hidden" for="pick-${slugOf(p['@id'])}">Select: ${esc(p.name)}</label><input type="checkbox" id="pick-${slugOf(p['@id'])}" data-select="${slugOf(p['@id'])}"></span>`;
-const pill = (facet, value, label) => `<span class="mm-term">${esc(label)}</span>`;
+// A tag on a card is a button that applies that filter.
+// The status of a project is the shell's status badge: blue when it is new, amber while it is ongoing.
+const STATUS_KIND = { New: 'open', Ongoing: 'warning' };
+const pill = (facet, value, label) => `<button type="button" class="app-status" data-status="${STATUS_KIND[value] || 'open'}" data-button-kind="content" data-badge-facet="${esc(facet)}" data-badge-value="${esc(value)}" title="Filter by this" aria-label="Filter by ${esc(facet)}: ${esc(label)}">${esc(label)}</button>`;
 const projCard = (p, i) => `<li class="app-card mm-card" ${attrs(p, i)}>${pick(p)}<div class="mm-card__body">` +
   `<h3 class="mm-card__title"><a href="./projects/${slugOf(p['@id'])}.html">${esc(p.name)}</a></h3>` +
-  `<dl class="capital-figures">${fig('Cost estimate', p.costEstimate)}${fig(COLS[0].head, p.byYear[COLS[0].key])}${fig('Funding in the plan', p.totalFunding)}${p.additionalFundsNeeded ? fig('Additional funds needed', p.additionalFundsNeeded) : ''}</dl>` +
-  `<div class="mm-terms">${pill('category', p.category, p.category)}${p.subcategory ? pill('subcategory', p.subcategory, p.subcategory) : ''}${pill('status', p.cipStatus, p.cipStatus)}</div></div></li>`;
+  `<dl class="capital-figures">${fig('Cost estimate', p.costEstimate)}${p.additionalFundsNeeded ? fig('Additional funds needed', p.additionalFundsNeeded) : ''}</dl>` +
+  `<div class="mm-terms">${pill('status', p.cipStatus, p.cipStatus)}</div></div></li>`;
 const projRow = (p, i) => `<tr ${attrs(p, i)}><td class="mm-card__select"><label class="visually-hidden" for="pick-row-${slugOf(p['@id'])}">Select: ${esc(p.name)}</label><input type="checkbox" id="pick-row-${slugOf(p['@id'])}" data-select="${slugOf(p['@id'])}"></td><th scope="row"><a href="./projects/${slugOf(p['@id'])}.html">${esc(p.name)}</a></th><td>${esc(catLabel(p))}</td><td>${esc(p.cipStatus)}</td>` +
   `${num(p.costEstimate, money(p.costEstimate))}${num(p.priorApprovals, money(p.priorApprovals))}${COLS.map((c) => num(p.byYear[c.key], money(p.byYear[c.key]))).join('')}${num(p.additionalFundsNeeded, money(p.additionalFundsNeeded))}</tr>`;
 const projectsCsv = [['Category', 'Subcategory', 'Project', 'Status', 'Cost estimate', 'Prior approvals', ...COLS.map((c) => c.head), 'Total funding', 'Additional funds needed', 'Book page'],
   ...display.projects.map((p) => [p.category, p.subcategory || '', p.name, p.cipStatus, p.costEstimate, p.priorApprovals, ...COLS.map((c) => p.byYear[c.key]), p.totalFunding, p.additionalFundsNeeded, p.page])];
 const pagesUsed = new Set(display.projects.map((p) => p.page));
 
-// Facets: [name, legend, "all" words, [[value, label]]]. A count is the number of projects with the value.
-const count = (name, value) => display.projects.filter((p) => ({ category: [p.category], subcategory: [p.subcategory || ''], status: [p.cipStatus], year: yearsOf(p), size: [sizeOf(p.costEstimate)], gap: [p.additionalFundsNeeded > 0 ? 'gap' : ''] }[name]).includes(value)).length;
+// Facets: [name, legend, "all" words, [[value, label]]]. They become the groups of filters.json; the shell draws the column and counts each choice.
 const uniq = (f) => [...new Set(display.projects.map(f).filter(Boolean))];
 const FACETS = [
   ['category', 'Categories', 'All categories', uniq((p) => p.category).map((v) => [v, v])],
@@ -129,8 +133,13 @@ const FACETS = [
   ['size', 'Cost estimates', 'All cost estimates', SIZES],
   ['gap', 'Funding gaps', 'All projects', [['gap', 'Needs additional funds']]],
 ];
-const facetHtml = ([name, legend, all, values]) => `<fieldset class="search-facet-group" id="facet-${name}" data-all="${esc(all)}"><legend>${legend}</legend><details class="mm-facet-group"><summary>${esc(all)}</summary><ul class="search-facet-list">` +
-  values.map(([v, l]) => `<li><label><input type="checkbox" data-facet-filter="${name}" value="${esc(v)}"> ${esc(l)} <span class="search-facet-count">(${count(name, v)})</span></label></li>`).join('') + '</ul></details></fieldset>';
+// filters.json: the search and one group for each facet, matched on the fields the page's script lists for each project.
+const filters = {
+  $schema: '../vendor/marinos/filter-panel.schema.json', schemaVersion: '1.0.0',
+  search: { id: 'project-search', fields: ['name', 'category', 'subcategory', 'status'], match: 'phrase' },
+  groups: FACETS.map(([name, legend, all, values]) => ({ type: 'checkbox', id: name, label: legend, allLabel: all, options: { values: values.map(([value, label]) => ({ value, label })) }, param: name, field: name })),
+};
+fs.writeFileSync(path.join(OUT, 'filters.json'), JSON.stringify(filters, null, 2) + '\n');
 
 // The selection's numbers. The page's script recomputes these from the projects still showing.
 const programmedOf = (p) => COLS.reduce((n, c) => n + p.byYear[c.key], 0);
@@ -190,26 +199,23 @@ const ICONS = {
   name: ico('<path d="m3 16 4 4 4-4"/><path d="M7 4v16"/><path d="M15 4h5l-5 6h5"/><path d="M15 20v-3.5a2.5 2.5 0 0 1 5 0V20"/><path d="M20 18h-5"/>'),
   table: ico('<path d="M12 3v18"/><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/>'),
   cards: ico('<rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/>'),
-  reset: ico('<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>'),
 };
 const tbtn = (attr, value, label, icon, pressed) => `<button type="button" class="action-button" ${attr}="${value}" aria-pressed="${pressed}" aria-label="${label}" title="${label}">${icon}</button>`;
 const toolbar = `<div class="action-toolbar"><div class="action-group" role="group" aria-label="Sort" id="sort-group">${tbtn('data-sort', 'book', 'Book order', ICONS.book, 'true')}${tbtn('data-sort', 'cost', 'Cost estimate, high to low', ICONS.cost, 'false')}${tbtn('data-sort', 'gap', 'Additional funds needed, high to low', ICONS.cost, 'false')}${tbtn('data-sort', 'name', 'Name, A to Z', ICONS.name, 'false')}</div>` +
   `<div class="action-group" role="group" aria-label="View" id="view-group">${tbtn('data-view', 'cards', 'Cards', ICONS.cards, 'true')}${tbtn('data-view', 'table', 'Table', ICONS.table, 'false')}</div>` +
-  `<div class="action-group" role="group" aria-label="Chart actions" id="chart-actions" hidden><button type="button" class="action-button" id="copy-charts-button" data-icon="copy" aria-label="Copy charts" title="Copy charts"></button><button type="button" class="action-button" id="download-all-png-button" data-icon="download" aria-label="Download all charts as PNG" title="Download all charts as PNG"></button></div>` +
-  `${actions('capital-projects', '#project-cards', true, [{ id: 'table', label: 'projects' }], null, true)}</div>`;
-const filterPanel = `<div class="search-side"><button type="button" id="filter-toggle" class="filter-toggle" data-filter-toggle="capital" aria-controls="filter-panel"></button>` +
-  `<aside id="filter-panel" class="search-sidebar" aria-labelledby="filter-panel-title" data-open="false"><div class="search-panel-header"><h2 class="search-panel-title" id="filter-panel-title">Filter</h2>` +
-  `<button type="button" class="action-button" id="reset-filters-button" aria-label="Reset filters" title="Reset filters">${ICONS.reset}</button></div>` +
-  `<div class="search-input-field"><label for="project-search">Search</label><input type="search" id="project-search" placeholder="Search projects&hellip;" autocomplete="off"></div>${FACETS.map(facetHtml).join('')}</aside></div>`;
+  `<div class="action-group chart-part" role="group" aria-label="Copy charts" hidden><button type="button" class="action-button" id="copy-charts-button" data-icon="copy" aria-label="Copy charts" title="Copy charts"></button></div>` +
+  `${actions('capital-projects', '#project-cards', true, [{ id: 'table', label: 'projects' }], null, true)}<div class="action-group chart-part" role="group" aria-label="Download charts" hidden><button type="button" class="action-button" id="download-all-png-button" data-icon="download" aria-label="Download all charts as PNG" title="Download all charts as PNG"></button></div><div class="action-group" role="group" aria-label="Fullscreen">${fullscreenButton('.search-results')}</div></div>`;
+const filterPanel = filterColumn('capital');
 const tabRow = `<div id="content-tab-row" class="tab-list"><div role="tablist" aria-label="Projects" id="content-tabs"><button type="button" role="tab" aria-selected="true" id="projects-tab" aria-controls="project-list" class="tab-button">Projects</button></div>` +
-  `<!-- Not inside the tablist: Stats is a view toggle, as in Marin Mentions. --><button type="button" id="stats-toggle" class="tab-button" aria-pressed="false" aria-controls="project-stats">Stats</button><button type="button" id="data-toggle" class="tab-button" aria-pressed="false" aria-controls="project-data">Data</button><button type="button" id="notes-toggle" class="tab-button" aria-pressed="false" aria-controls="project-notes">Notes</button></div>`;
-const results = `<div class="search-results">${tabRow}<div class="mm-results-summary"><p class="app-help-text" id="active-filters" aria-live="polite">Showing: ${display.projects.length} projects</p></div>${toolbar}` +
-  `<div id="project-list"><p class="app-empty" id="project-empty" hidden>No projects match.</p><div class="mm-select-all" id="select-all-field"><label><input type="checkbox" id="select-all-checkbox"> Select all</label><span class="app-help-text" id="selection-count" role="status" aria-live="polite"></span></div>` +
+  `<!-- Not inside the tablist: Stats is a view toggle, as in Marin Mentions. --><button type="button" id="stats-toggle" class="tab-button" aria-pressed="false" aria-controls="project-stats">Stats</button></div>`;
+writeSection('capital', 'Capital improvement plan, FY 2027-31 book', `${sourceList(pagesUsed, './')}<section class="section" aria-labelledby="pages"><h2 id="pages">Pages</h2><ul><li><a href="./index.html">Categories and fund sources</a></li>${capitalFunds.map((f) => `<li><a href="../budget/funds/${bd.fundSlug(f)}.html">${esc(bd.fundName(f))}</a></li>`).join('')}</ul></section>` + `<section class="section" aria-labelledby="notes"><h2 id="notes">Notes</h2>${notesTab}</section>`, '../capital/');
+const results = `<div class="search-results">${tabRow}<div class="mm-results-summary"><p class="app-help-text" id="active-filters" data-filter-results tabindex="-1">${display.projects.length} projects</p></div>${toolbar}` +
+  `<div id="project-list"><div class="mm-select-all" id="select-all-field"><label><input type="checkbox" id="select-all-checkbox"> Select all</label><span class="app-help-text" id="selection-count" role="status" aria-live="polite"></span></div>` +
   `<ul class="search-results-list" id="project-cards" aria-label="Projects">${display.projects.map(projCard).join('')}</ul>` +
-  `<div id="project-table-wrap" hidden><div class="table-scroll" role="region" tabindex="0" aria-label="Projects"><table class="budget-table" id="project-table"><caption>Projects</caption><thead><tr><th scope="col"><span class="visually-hidden">Select</span></th>${HEAD.map((h, i) => `<th scope="col"${i > 2 ? ' class="budget-table__num"' : ''}>${esc(h)}</th>`).join('')}</tr></thead><tbody>${display.projects.map(projRow).join('')}</tbody></table></div></div></div>${stats}<div id="project-export" class="visually-hidden" aria-hidden="true"></div><div id="project-data" aria-label="Data" hidden>${sourceList(pagesUsed, './')}<section class="section" aria-labelledby="pages"><h2 id="pages">Pages</h2><ul><li><a href="./index.html">Categories and fund sources</a></li>${capitalFunds.map((f) => `<li><a href="../budget/funds/${bd.fundSlug(f)}.html">${esc(bd.fundName(f))}</a></li>`).join('')}</ul></section></div><div id="project-notes" aria-label="Notes" hidden>${notesTab}</div></div>`;
+  `<div id="project-table-wrap" hidden><div class="table-scroll" role="region" tabindex="0" aria-label="Projects"><table class="budget-table" id="project-table"><caption>Projects</caption><thead><tr><th scope="col"><span class="visually-hidden">Select</span></th>${HEAD.map((h, i) => `<th scope="col"${i > 2 ? ' class="budget-table__num"' : ''}>${esc(h)}</th>`).join('')}</tr></thead><tbody>${display.projects.map(projRow).join('')}</tbody></table></div></div></div>${stats}<div id="project-export" class="visually-hidden" aria-hidden="true"></div></div>`;
 const projectsPage = shell('Capital projects', 'Every project in the County of Marin FY 2027-31 Capital Improvement Plan, with filters and totals for what is selected.', [['Marin Budget', '../index.html'], ['Capital improvement plan', './index.html'], ['Projects', null]],
-  `<h1 class="visually-hidden">Capital improvement plan</h1><div class="search-layout" id="projects-tool">${filterPanel}${results}</div>` +
-  jsonBlock(projects, '../shared/page-data.js', [{ id: 'table', rows: projectsCsv }]) + `<script src="../shared/search-layout.js?v=${stamp('shared/search-layout.js')}"></script><script src="projects.js?v=${stamp('capital/projects.js')}"></script>`);
+  `<h1 class="visually-hidden">Capital improvement plan</h1><div class="search-layout" id="projects-tool">${filterPanel}${statTablesIn(results)}</div>` +
+  jsonBlock(projects, '../shared/page-data.js', [{ id: 'table', rows: projectsCsv }]) + `<script src="projects.js?v=${stamp('capital/projects.js')}"></script>`);
 
 // ---- The Capital page ---------------------------------------------------------------------------------------------
 const years = COLS.map((c) => c.key);

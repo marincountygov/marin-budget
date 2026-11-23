@@ -1,4 +1,4 @@
-@import url("../capital/styles.css");
+@import url("../capital/styles.css?v=fa402c76");
 
 /* The Compare tab: the picker above the charts and the table. */
 .compare-picker {
@@ -47,5 +47,318 @@
 
 .dash-links li::before,
 .dash-links li::marker {
+  content: none;
+}
+
+.drill-table {
+  overflow-x: auto;
+}
+
+.drill-table table {
+  width: 100%;
+  margin: 0.5rem 0 0;
+  font-size: 1rem;
+}
+
+.drill-table th,
+.drill-table td {
+  padding: 0.5rem;
+  font-size: 1rem;
+  font-weight: 400;
+  vertical-align: top;
+}
+
+.drill-table thead th {
+  font-weight: 700;
+  color: var(--app-muted);
+  border-bottom: 1px solid var(--app-border);
+}
+
+.drill-table .drill-num {
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.drill-table thead .drill-num {
+  white-space: normal;
+}
+
+.drill-table tbody tr + tr > * {
+  border-top: 1px solid var(--app-border);
+}
+
+.drill-toggle {
+  display: inline-block;
+  width: 1.5rem;
+  min-height: 0;
+  height: 1.5rem;
+  margin: 0 0.25rem 0 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  vertical-align: middle;
+  cursor: pointer;
+}
+
+.drill-toggle::before {
+  content: "\203A";
+  display: inline-block;
+  font-size: 1.25rem;
+  line-height: 1;
+  transition: transform 0.15s;
+}
+
+.drill-toggle[aria-expanded="true"]::before {
+  transform: rotate(90deg);
+}
+
+.drill-kind {
+  color: var(--app-muted);
+}
+
+.department-area,
+#department-top {
+  margin: 0 0 1rem;
+}
+
+#department-top {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--app-border);
+  border-radius: var(--pico-border-radius);
+}
+
+#department-top .capital-figures {
+  display: block;
+  margin: 0;
+}
+
+/* The service area and the figures are one list: one size, no bold. */
+.search-results .capital-figures dt,
+.search-results .capital-figures dd {
+  font-size: 1rem;
+  font-weight: 400;
+}
+
+#department-top .capital-figures > div {
+  display: grid;
+  grid-template-columns: minmax(12rem, 1fr) 2fr;
+  gap: 0 1rem;
+  padding: 0.125rem 0;
+}
+
+.reorg-quote {
+  margin: 0.5rem 0 0;
+  padding-left: 1rem;
+  border-left: 2px solid currentColor;
+}
+
+.search-results .app-actions {
+  margin-top: 1rem;
+}
+
+li.drill-row {
+  list-style: none;
+  padding: 0.5rem 0;
+  border-top: 1px solid var(--app-border);
+  font-size: 1rem;
+}
+
+.drill-table thead th:first-child,
+.drill-table tbody th {
+  min-width: 16rem;
+}
+
+.drill-table .drill-num {
+  min-width: 7rem;
+}
+
+.dept-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 1rem;
+}
+
+/* All the accounts of a department: one table, scrolling both ways, its heading and its first column kept in view. */
+.accounts-scroll {
+  max-height: 70vh;
+  overflow: auto;
+  border: 1px solid var(--app-border);
+  border-radius: var(--pico-border-radius);
+}
+
+.accounts-table {
+  width: max-content;
+  min-width: 100%;
+  margin: 0;
+  font-size: 1rem;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.accounts-table th,
+.accounts-table td {
+  padding: 0.5rem 0.75rem;
+  font-size: 1rem;
+  font-weight: 400;
+  white-space: nowrap;
+  text-align: left;
+  background: var(--app-surface, #fff);
+}
+
+.accounts-table thead th {
+  font-weight: 700;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  color: var(--app-muted);
+  border-bottom: 1px solid var(--app-border);
+}
+
+.accounts-table tbody td,
+.accounts-table tbody th {
+  border-bottom: 1px solid var(--app-border);
+}
+
+
+
+.accounts-table .drill-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.accounts-table .drill-num .sort-button {
+  justify-content: flex-end;
+  width: auto;
+}
+
+
+
+/* The letters above the columns and the numbers beside the rows of the table of all accounts: pressing one selects the column or the row. */
+.accounts-table .col-handles th,
+.accounts-table .row-handle {
+  color: var(--app-muted);
+  font-weight: 400;
+  text-align: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+.accounts-table .col-handles th {
+  box-sizing: border-box;
+  height: 1.75rem;
+  padding: 0 0.75rem;
+  line-height: 1.5rem;
+  border-bottom: 1px solid var(--app-border);
+}
+
+.accounts-table .row-handle {
+  min-width: 3.5rem;
+  border-right: 1px solid var(--app-border);
+}
+
+.accounts-table .col-handles th:hover,
+.accounts-table .row-handle:hover {
+  color: var(--app-text);
+}
+
+.accounts-table thead tr:nth-child(2) th {
+  top: 1.75rem;
+}
+
+
+
+.drill-table tr.is-selected-row > * {
+  background-color: var(--table-mark);
+}
+
+.drill-table td.is-selected-cell {
+  background-color: var(--table-mark);
+}
+
+/* What is selected in the table of all accounts: one tint, and the cells of the selection share it. */
+.accounts-table [data-sel] {
+  background-color: var(--table-mark);
+}
+
+.accounts-table.select-all td,
+.accounts-table.select-all tbody th {
+  background-color: var(--table-mark);
+}
+
+.accounts-table tbody td {
+  user-select: none;
+}
+
+/* The tables of the Summary are selected the same way: letters above the columns, numbers (counted by the page, as rows open and close) beside the rows. */
+.drill-table tbody {
+  counter-reset: row;
+}
+
+.drill-table tr.drill-row {
+  counter-increment: row;
+}
+
+.drill-table .row-handle::before {
+  content: counter(row);
+}
+
+.drill-table .col-handles th,
+.drill-table .row-handle {
+  color: var(--app-muted);
+  font-weight: 400;
+  text-align: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+.drill-table .col-handles th {
+  padding: 0 0.5rem;
+  line-height: 1.5rem;
+}
+
+.drill-table .row-handle {
+  width: 3rem;
+  min-width: 3rem;
+  border-right: 1px solid var(--app-border);
+}
+
+.drill-table .col-handles th:hover,
+.drill-table .row-handle:hover {
+  color: var(--app-text);
+}
+
+.drill-table [data-sel] {
+  background-color: var(--table-mark);
+}
+
+.drill-table.select-all td,
+.drill-table.select-all tbody th {
+  background-color: var(--table-mark);
+}
+
+.drill-table tbody td {
+  user-select: none;
+}
+
+.drill-table .drill-num {
+  min-width: 7rem;
+}
+
+.drill-table thead th.corner,
+.drill-table thead th.row-handle,
+.drill-table tbody th.row-handle {
+  width: 3rem;
+  min-width: 3rem;
+}
+
+.drill-table thead tr th:nth-child(2) {
+  min-width: 16rem;
+}
+
+.drill-table thead .row-handle::before {
   content: none;
 }

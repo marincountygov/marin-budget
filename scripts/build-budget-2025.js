@@ -12,7 +12,8 @@ const path = require('path');
 const bd = require('./budget-data');
 const { shell, esc } = require('./budget-shell');
 const { actions, jsonBlock } = require('./page-actions');
-const { toolHtml, toolScripts } = require('./budget-tool');
+const { toolHtml, toolScripts, filtersFor } = require('./budget-tool');
+const { writeSection } = require('./data-sections');
 
 const ROOT = path.join(__dirname, '..');
 const OUT = path.join(ROOT, 'budget', 'fy2025-26');
@@ -225,17 +226,21 @@ function homePage() {
     (notes.totalsThatDifferFromTheirParts.length ? table('Totals that differ from their parts as printed', ['Line', 'Printed', 'Parts add to', 'Difference'], notes.totalsThatDifferFromTheirParts.map((r) => `<tr><th scope="row">${esc(r.line)}</th>${num(r.printed, money(r.printed))}${num(r.parts, money(r.parts))}${num(r.difference, money(r.difference))}</tr>`)) : '') +
     (notes.unitsWithoutOrganization.length ? table('Budget units with no organization in the data', ['Budget unit', 'Name'], notes.unitsWithoutOrganization.map((u) => `<tr><th scope="row">${esc(u.unit)}</th><td>${esc(u.name)}</td></tr>`)) : '') +
     (notes.unreadableCells.length ? table('Cells printed over each other in the PDF, left empty', ['Book page', 'Row', 'Column'], notes.unreadableCells.map((u) => `<tr><th scope="row">${printed(u.page)}</th><td>${esc(u.label)}</td><td>${u.column}</td></tr>`)) : '');
-  const lines = LINES.map((l) => ({ slug: l.slug, ref: l.id, title: l.unit, values: l.values, facets: { function: l.fn, activity: l.act, unit: l.unit }, badges: ['function', 'activity'], page: printed(l.page) }));
+  writeSection('budget-2025-26', 'Budget, FY 2025-26 book', dataHtml + `<section class="section" aria-labelledby="notes"><h2 id="notes">Notes</h2>${notesHtml}</section>`, '../budget/fy2025-26/');
+  const lines = LINES.map((l) => ({ slug: l.slug, ref: l.id, title: l.unit, values: l.values, facets: { function: l.fn, activity: l.act, unit: l.unit }, badges: [], page: printed(l.page) }));
   const csv = [['Budget unit', 'Function', 'Activity', ...YSHORT, 'Book page'], ...LINES.map((l) => [l.unit, l.fn, l.act, ...l.values, printed(l.page)])];
-  const tool = toolHtml({ id: 'fy2025-26', titleLabel: 'Budget unit', noun: { one: 'line', many: 'lines', Many: 'Lines' }, columns: YSHORT.map((label) => ({ label })), defaultColumn: 3,
+  const toolCfg = { up: '../../', id: 'fy2025-26', titleLabel: 'Budget unit', noun: { one: 'budget unit', many: 'budget units', Many: 'Budget units' }, columns: YSHORT.map((label) => ({ label })), defaultColumn: 3,
     facets: [{ name: 'function', label: 'Functions', all: 'All functions' }, { name: 'activity', label: 'Activities', all: 'All activities' }, { name: 'unit', label: 'Budget units', all: 'All budget units' }],
-    chartFacets: ['function', 'unit'], breakdownFacet: 'function', countFacet: 'unit', countLabel: 'Budget units', lines, statsExtra: overview, compare: false, dataHtml, notesHtml, exportCaption: 'Budget lines in the County of Marin FY 2025-26 Final Budget', statsTitle: 'Budget', lib: LIB, books: YEAR_OPTIONS, currentBook: './index.html' });
+    chartFacets: ['function', 'unit'], breakdownFacet: 'function', countFacet: 'unit', countLabel: 'Budget units', lines, statsExtra: overview, compare: false, exportCaption: 'Budget lines in the County of Marin FY 2025-26 Final Budget', statsTitle: 'Budget', lib: LIB, books: YEAR_OPTIONS, currentBook: './index.html' };
+  // The filter column is drawn by the shell from this file.
+  fs.writeFileSync(path.join(OUT, 'filters.json'), JSON.stringify(filtersFor(toolCfg), null, 2) + '\n');
+  const tool = toolHtml(toolCfg);
   return shell('Budget FY 2025-26', 'The County of Marin Final Budget for fiscal year 2025-26.', crumbs(),
     `<h1 class="visually-hidden">Budget FY 2025-26</h1>${tool}` +
     jsonBlock(LINES.map((l) => adoptedLines.get(l.id)).filter(Boolean), PAGE_DATA, [{ id: 'table', rows: csv }]) + toolScripts('../../'), '../');
 }
 
-fs.writeFileSync(path.join(OUT, 'styles.css'), '@import url("../../capital/styles.css");\n');
+fs.writeFileSync(path.join(OUT, 'styles.css'), '@import url("../styles.css");\n');
 for (const f of fs.readdirSync(OUT)) if (/^(schedule-\d+|road-fund|personnel|property-tax-trends|lines|index)\.html$/.test(f)) fs.unlinkSync(path.join(OUT, f));
 fs.writeFileSync(path.join(OUT, 'index.html'), homePage());
 for (const s of data.schedules) fs.writeFileSync(path.join(OUT, `schedule-${s.number}.html`), schedulePage(s));

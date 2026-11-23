@@ -1,0 +1,35 @@
+{
+  "note": "Maps the first two digits of the four-digit department code on a contract (tender.procuringEntity, urn:marin:organization:department:NNNN) to a department. 'budgetCode' is the department's budget code (local:marin-budget-department-code in organizations.jsonld). Groups with no budgetCode have no organization page yet. The prefix rule is an observed pattern (1002 -> 100 Health and Human Services, 4102 -> 410 Public Works), checked by hand for the prefixes below; sub-codes such as 1001 to 1005 are not yet matched to divisions, so they roll up to the department. Edit this file, not the output.",
+  "prefixes": {
+    "10": {"budgetCode": "100"},
+    "20": {"budgetCode": "200"},
+    "22": {"budgetCode": "220"},
+    "23": {"budgetCode": "230"},
+    "24": {"budgetCode": "240"},
+    "26": {"budgetCode": "260"},
+    "30": {"budgetCode": "300"},
+    "31": {"budgetCode": "310"},
+    "32": {"budgetCode": "320"},
+    "33": {"budgetCode": "330"},
+    "34": {"budgetCode": "340"},
+    "35": {"budgetCode": "350"},
+    "36": {"budgetCode": "360"},
+    "39": {"budgetCode": "390"},
+    "40": {"budgetCode": "400"},
+    "41": {"budgetCode": "410"},
+    "50": {"budgetCode": "500"},
+    "51": {"budgetCode": "510"},
+    "52": {"budgetCode": "520"},
+    "53": {"budgetCode": "530"},
+    "54": {"budgetCode": "540"},
+    "65": {"group": "open-space", "name": "Open Space District", "needsReview": "Open Space District (budget code 659) is not in organizations.jsonld. Code 6531 is Zero Waste JPA work and may belong elsewhere."},
+    "72": {"group": "service-areas-parks", "name": "County Service Areas (Parks codes 72xx)", "needsReview": "Parks landscape and service-area work; confirm the owning department."},
+    "73": {"group": "service-areas-parks", "name": "County Service Areas (Parks codes 72xx)", "needsReview": "Parks landscape and service-area work; confirm the owning department."},
+    "90": {"group": "non-departmental", "name": "Non-departmental (code 9001)", "needsReview": "Grant and support payments; confirm the owning department."}
+  },
+  "exclude": {
+    "note": "Placeholders, not real contracts: a name containing 'Test Contract', or a value of $100 or less.",
+    "nameContains": ["Test Contract"],
+    "maxValue": 100
+  }
+}

@@ -8,10 +8,10 @@ project:
   audience: staff
   status: alpha
   test: false
-  test_sections: budget/, capital/
+  test_sections: budget/, capital/, contracts/, reports/
 
 platform:
-  shell: 1.25.1
+  shell: 2.1.0
   template: manual
 
 deployment:
