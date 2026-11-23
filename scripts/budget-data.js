@@ -71,9 +71,9 @@ function linesFor(data, orgId) {
   return [...out.values()];
 }
 
-const money = (n) => (n < 0 ? '−' : '') + '$' + Math.abs(n).toLocaleString('en-US');
+const money = (n) => { const r = Math.round(Math.abs(n)); return (n < 0 && r > 0 ? '−' : '') + '$' + r.toLocaleString('en-US'); };
 const inMillions = (n) => '$' + (n / 1e6).toFixed(1) + ' million';
-const millions = (n) => '$' + (n / 1e6).toFixed(1) + 'M';
+const millions = (n) => '$' + Number((n / 1e6).toFixed(1)).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + 'M';
 const change = (a, b) => (a == null || b == null ? null : b - a);
 const signed = (n) => (n == null ? '' : n > 0 ? '+' + money(n) : money(n));
 const num = (v, text) => `<td class="budget-table__num">${v == null ? '<span aria-label="No figure">–</span>' : text}</td>`;
@@ -98,11 +98,11 @@ const tableId = (caption, body) => {
 };
 // Every table has its own Copy and Download buttons, scoped to the table: Copy as text, HTML or Markdown; Download as the same, or a CSV.
 // The CSV is read from the table, so it always matches what is on the page.
-const table = (caption, head, bodyRows, foot = '') => {
+const table = (caption, head, bodyRows, foot = '', numeric = null) => { // numeric: the columns that are numbers (default: all but the first)
   const markup = `<table class="budget-table"><caption>${esc(caption)}</caption>` +
-    `<thead><tr>${head.map((h, i) => `<th scope="col"${i ? ' class="budget-table__num"' : ''}>${esc(h)}</th>`).join('')}</tr></thead><tbody>${bodyRows.join('')}</tbody>${foot}</table>`;
+    `<thead><tr>${head.map((h, i) => `<th scope="col"${(numeric ? numeric.includes(i) : i) ? ' class="budget-table__num"' : ''}>${esc(h)}</th>`).join('')}</tr></thead><tbody>${bodyRows.join('')}</tbody>${foot}</table>`;
   const id = tableId(caption, markup);
-  return `<div class="table-block" id="${id}">${actions(id, `#${id} .table-scroll`, false, [{ id, file: id.replace(/-[a-z0-9]{1,4}$/, '') }], null, false)}` +
+  return `<div class="table-block" id="${id}">${actions(id, `#${id} .table-scroll`, false, [{ id, file: id.replace(/-[a-z0-9]{1,4}$/, '') }], null, false, '', `#${id}`, true)}` +
     `<div class="table-scroll" role="region" tabindex="0" aria-label="${esc(caption)}">${markup}</div>` +
     `<script type="application/json" id="csv-${id}">${JSON.stringify(tableRows(head, bodyRows, foot)).replace(/</g, '\\u003c')}</script></div>`;
 };
@@ -124,7 +124,8 @@ const chart = (id, title, kind, rawSpec, stacked = false, lib = '../vendor/chart
   `<div data-chart data-inline="${id}-data" data-chart-lib="${lib}" data-chart-title="${esc(title)}" data-kind="${kind}"${stacked ? ' data-stacked' : ''}></div></div>`); };
 const charts = (...items) => `<div class="mm-stats-grid">${items.join('')}</div>`;
 
-const kpi = (label, value) => `<div class="mm-stats-kpi"><p class="app-help-text">${esc(label)}</p><p class="mm-stats-kpi__value">${esc(value)}</p></div>`;
+// A key number: its value, and its label at the base. With an address, the number opens the tool on it.
+const kpi = (label, value, href) => `<div class="mm-stats-kpi"><p class="mm-stats-kpi__value">${href ? `<a href="${esc(href)}">${esc(value)}</a>` : esc(value)}</p><p class="app-help-text">${esc(label)}</p></div>`;
 
 // The lines for one organization in one budget, by kind.
 function figures(data, orgId, bkey) {

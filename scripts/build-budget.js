@@ -134,7 +134,7 @@ if (data) {
   statsOverview = cw ? cw.html : '';
   const rank = new Map([...depRows].sort((a, b) => b.exp - a.exp).map((r, i) => [r, i]));
   toolLines = depRows.map((r) => ({ order: rank.get(r), slug: slugOf(r.o['@id']), ref: r.line['@id'], title: r.o.name, href: orgHref(r.o), values: YEARS.map((y) => expAt(r.o['@id'], y.key)),
-    facets: { area: areaOf(r.o), department: r.o.name, kind: r.o.organizationClassification === 'department' ? 'Department' : 'Division' }, badges: ['area', 'kind'], page: data.display.linePages[r.line['@id']] }));
+    facets: { area: areaOf(r.o), department: r.o.name, kind: r.o.organizationClassification === 'department' ? 'Department' : 'Division' }, badges: [], page: data.display.linePages[r.line['@id']] }));
   // Divisions the book prints as programs (a program with the division's name under its department). Their amounts are the
   // program's expenditures, all fund groups added. Divisions the book prints no amounts for are left out, not estimated.
   const have = new Set(toolLines.map((l) => l.slug));
@@ -144,7 +144,7 @@ if (data) {
     if (own.some((v) => v != null)) { // a division the service-area table prints with its own totals (Health and Human Services)
       const l = (data.idx.get(LATEST).get(o['@id']) || new Map()).get('expenditure-total');
       toolLines.push({ order: toolLines.length, slug: slugOf(o['@id']), ref: l ? l['@id'] : null, title: o.name, href: orgHref(o), values: own,
-        facets: { area: areaOf(o), department: o.name, kind: 'Division' }, badges: ['area', 'kind'], page: l ? data.display.linePages[l['@id']] : undefined, nested: true });
+        facets: { area: areaOf(o), department: o.name, kind: 'Division' }, badges: [], page: l ? data.display.linePages[l['@id']] : undefined, nested: true });
       continue;
     }
     const parent = o.parentOrganization && o.parentOrganization['@id'];
@@ -154,7 +154,7 @@ if (data) {
     const values = YEARS.map((y) => { const m = lines.filter((l) => l['@id'].includes(`/${y.key}/`)); return m.length ? m.reduce((s, l) => s + val(l), 0) : null; });
     if (values.every((v) => v == null)) continue;
     toolLines.push({ order: toolLines.length, slug: slugOf(o['@id']), ref: lines[0]['@id'], title: o.name, href: orgHref(o), values, prog,
-      facets: { area: areaOf(o), department: o.name, kind: 'Division' }, badges: ['area', 'kind'], nested: true });
+      facets: { area: areaOf(o), department: o.name, kind: 'Division' }, badges: [], nested: true });
   }
   // Revenues and Net County cost, as the book prints them for FY 2025-26 and FY 2026-27, beside the expenditures. A line the book
   // gives none for (a division with no figures of its own) has none, and shows a dash.
@@ -262,7 +262,7 @@ const indexTool = data && toolLines.length ? (() => {
     `<section class="section" aria-labelledby="pages"><h2 id="pages">Pages</h2><ul><li><a href="./service-areas.html">Service areas</a></li><li><a href="./departments.html">Departments</a></li><li><a href="./funds.html">Funds</a></li></ul></section>`;
   const notesHtml = `<ul>${[NOTE, book && book.note].filter(Boolean).map((n) => `<li>${esc(n)}</li>`).join('')}</ul>`;
   writeSection('budget-2026-28', 'Budget, FY 2026-28 book', dataHtml + `<section class="section" aria-labelledby="notes"><h2 id="notes">Notes</h2>${notesHtml}</section>`, '../budget/');
-  const toolCfg = { up: '../', id: 'fy2026-28', titleLabel: 'Department or division', noun: { one: 'line', many: 'lines', Many: 'Lines' }, columns: COLUMNS, measures: MEASURES, defaultColumn: YEARS.length - 1,
+  const toolCfg = { up: '../', id: 'fy2026-28', titleLabel: 'Department or division', noun: { one: 'department or division', many: 'departments and divisions', Many: 'Departments and divisions' }, columns: COLUMNS, measures: MEASURES, defaultColumn: YEARS.length - 1,
     facets: [{ name: 'area', label: 'Service areas', all: 'All service areas' }, { name: 'department', label: 'Departments and divisions', all: 'All departments and divisions' }, { name: 'kind', label: 'Types', all: 'All types' }],
     chartFacets: ['area', 'department'], breakdownFacet: 'kind', countFacet: 'department', countLabel: 'Departments', lines: toolLines, statsExtra: statsOverview, compare: toolCompare, compareNoun: 'departments', compareLabel: 'Departments', compareCaption: 'Departments side by side', exportCaption: 'Budget lines in the County of Marin Proposed Budget FY 2026-28', statsTitle: 'Budget', lib: '../vendor/chart.min.js', books: YEAR_OPTIONS, currentBook: './index.html' };
   // The filter column is drawn by the shell from this file.

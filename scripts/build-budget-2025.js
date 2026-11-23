@@ -227,9 +227,9 @@ function homePage() {
     (notes.unitsWithoutOrganization.length ? table('Budget units with no organization in the data', ['Budget unit', 'Name'], notes.unitsWithoutOrganization.map((u) => `<tr><th scope="row">${esc(u.unit)}</th><td>${esc(u.name)}</td></tr>`)) : '') +
     (notes.unreadableCells.length ? table('Cells printed over each other in the PDF, left empty', ['Book page', 'Row', 'Column'], notes.unreadableCells.map((u) => `<tr><th scope="row">${printed(u.page)}</th><td>${esc(u.label)}</td><td>${u.column}</td></tr>`)) : '');
   writeSection('budget-2025-26', 'Budget, FY 2025-26 book', dataHtml + `<section class="section" aria-labelledby="notes"><h2 id="notes">Notes</h2>${notesHtml}</section>`, '../budget/fy2025-26/');
-  const lines = LINES.map((l) => ({ slug: l.slug, ref: l.id, title: l.unit, values: l.values, facets: { function: l.fn, activity: l.act, unit: l.unit }, badges: ['function', 'activity'], page: printed(l.page) }));
+  const lines = LINES.map((l) => ({ slug: l.slug, ref: l.id, title: l.unit, values: l.values, facets: { function: l.fn, activity: l.act, unit: l.unit }, badges: [], page: printed(l.page) }));
   const csv = [['Budget unit', 'Function', 'Activity', ...YSHORT, 'Book page'], ...LINES.map((l) => [l.unit, l.fn, l.act, ...l.values, printed(l.page)])];
-  const toolCfg = { up: '../../', id: 'fy2025-26', titleLabel: 'Budget unit', noun: { one: 'line', many: 'lines', Many: 'Lines' }, columns: YSHORT.map((label) => ({ label })), defaultColumn: 3,
+  const toolCfg = { up: '../../', id: 'fy2025-26', titleLabel: 'Budget unit', noun: { one: 'budget unit', many: 'budget units', Many: 'Budget units' }, columns: YSHORT.map((label) => ({ label })), defaultColumn: 3,
     facets: [{ name: 'function', label: 'Functions', all: 'All functions' }, { name: 'activity', label: 'Activities', all: 'All activities' }, { name: 'unit', label: 'Budget units', all: 'All budget units' }],
     chartFacets: ['function', 'unit'], breakdownFacet: 'function', countFacet: 'unit', countLabel: 'Budget units', lines, statsExtra: overview, compare: false, exportCaption: 'Budget lines in the County of Marin FY 2025-26 Final Budget', statsTitle: 'Budget', lib: LIB, books: YEAR_OPTIONS, currentBook: './index.html' };
   // The filter column is drawn by the shell from this file.

@@ -16,7 +16,8 @@ const nest = (id, html) => html
   .replace(/<(\/?)h3/g, '<$1h4').replace(/<(\/?)h2/g, '<$1h3')
   .replace(/\b(id|aria-labelledby)="([^"]+)"/g, (_, a, v) => `${a}="${id}-${v}"`);
 
-const sections = readSections(['budget-2026-28', 'budget-2025-26', 'capital', 'contracts']);
+// The accounting data has a section where its page was built.
+const sections = readSections(['budget-2026-28', 'budget-2025-26', 'budget-accounting', 'capital', 'contracts'].filter((id) => id !== 'budget-accounting' || fs.existsSync(path.join(ROOT, 'data', 'sections', 'budget-accounting.json'))));
 const body = `<article class="content"><h1 class="doc-title">Data</h1>${strip}` +
   sections.map((x) => `<section class="section" aria-labelledby="data-${x.id}"><h2 id="data-${x.id}">${esc(x.title)}</h2>${nest(x.id, x.html)}</section>`).join('') + `</article>`;
 fs.writeFileSync(path.join(ROOT, 'data', 'index.html'), shell('Data', 'Where the County of Marin budget, Capital Improvement Plan and contracts data comes from.', [['Marin Budget', '../index.html'], ['Data', null]], body));

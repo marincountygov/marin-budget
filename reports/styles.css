@@ -1,4 +1,4 @@
-@import url("../budget/styles.css");
+@import url("../budget/styles.css?v=fa402c76");
 
 .reports-page > * + * {
   margin-top: 1.5rem;
@@ -54,11 +54,12 @@
 }
 
 .report-preview-head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
+  display: block;
+}
+
+/* The buttons of the preview sit under its heading, at the left, as a tool's toolbar does. */
+.report-preview-head .action-toolbar {
+  margin: 0.5rem 0 1rem;
 }
 
 .report-preview-head h2 {
@@ -113,7 +114,6 @@
   margin: 0 0 1rem;
 }
 
-.report-open button {
+.report-open .action-button {
   margin: 0;
-  width: auto;
 }

@@ -62,7 +62,7 @@ const tool = `<h1 class="visually-hidden">Contracts</h1>` +
   `<button type="button" role="tab" aria-selected="true" data-view="contracts" class="tab-button">Contracts</button><button type="button" role="tab" aria-selected="false" data-view="vendors" class="tab-button">Vendors</button></div>` +
   `<button type="button" id="stats-toggle" class="tab-button" aria-pressed="false">Stats</button></div>` +
   `<div class="mm-results-summary"><p class="app-help-text" id="active-filters" data-filter-results tabindex="-1">Loading contracts&hellip;</p></div>` +
-  `<div class="action-toolbar" id="results-toolbar">${sortGroup}` + actions('vendors', null, false, [{ id: 'vendors', label: 'vendors' }, { id: 'contracts', label: 'contracts' }]) + `</div>` +
+  `<div class="action-toolbar" id="results-toolbar">${sortGroup}` + actions('vendors', null, false, [{ id: 'vendors', label: 'vendors' }, { id: 'contracts', label: 'contracts' }], null, true, '', '.search-results') + `</div>` +
   `<script type="application/json" id="csv-vendors">[]</script><script type="application/json" id="csv-contracts">[]</script>` +
     `<ul class="search-results-list" id="contracts-results" aria-label="Contracts"></ul><ul class="search-results-list" id="vendors-results" aria-label="Vendors" hidden></ul>` +
   `<p id="more-row" hidden><button type="button" class="action-button" id="more-button" data-icon="chevron-down">Show more</button></p>` +
@@ -73,12 +73,12 @@ const tool = `<h1 class="visually-hidden">Contracts</h1>` +
   json('vendor-pages', Object.fromEntries(Object.entries(data.vendors).map(([id, v]) => [id, v.slug])));
 writeSection('contracts', 'Contracts', `<section class="section" aria-labelledby="source"><h2 id="source">Source</h2><ul><li><a href="./data/contracts-display.json">Contract data (JSON)</a></li></ul><p class="app-help-text">${esc(vd.NOTE)} ${data.excluded.count} placeholder records are left out.</p></section>`, '../contracts/');
 fs.writeFileSync(path.join(OUT, 'index.html'), shell('Contracts', 'The vendors the County of Marin contracts with, with filters, contracts and stats.', [['Marin Budget', '../index.html'], ['Contracts', null]], tool +
-  '<script src="../vendor/chart.min.js"></script><script src="../shared/page-data.js" defer></script><script src="contracts.js"></script>'));
+  '<script src="../vendor/chart.min.js"></script><script src="../shared/page-data.js" defer></script><script src="../shared/display-name.js"></script><script src="contracts.js"></script>'));
 
 // ---- One page for each vendor --------------------------------------------------------------------------
 // Pages of vendors that are no longer in the data are removed.
 for (const f of fs.readdirSync(VEND)) if (f.endsWith('.html')) fs.unlinkSync(path.join(VEND, f));
-const contractRow = (r) => `<tr><th scope="row">${esc(r.name)}</th><td>${deptHref(r.dept) ? `<a href="${deptHref(r.dept)}">${esc(deptName(r.dept))}</a>` : esc(deptName(r.dept))}</td><td>${esc(r.type || '')}</td><td>${r.status === 'active' ? 'Active' : 'Terminated'}</td>${bd.num(r.value, money(Math.round(r.value)))}<td>${esc([r.start, r.end].filter(Boolean).join(' to '))}</td></tr>`;
+const contractRow = (r) => `<tr><th scope="row"><a href="../c/${esc(r.id)}.html">${esc(r.name)}</a></th><td>${deptHref(r.dept) ? `<a href="${deptHref(r.dept)}">${esc(deptName(r.dept))}</a>` : esc(deptName(r.dept))}</td><td>${esc(r.type || '')}</td><td>${r.status === 'active' ? 'Active' : 'Terminated'}</td>${bd.num(r.value, money(Math.round(r.value)))}<td>${esc([r.start, r.end].filter(Boolean).join(' to '))}</td></tr>`;
 let count = 0;
 for (const [id, v] of Object.entries(data.vendors)) {
   const mine = data.byVendor.get(id).slice().sort((a, b) => b.value - a.value);
@@ -88,9 +88,31 @@ for (const [id, v] of Object.entries(data.vendors)) {
   const body = `<article class="content"><h1 class="doc-title">${esc(v.name)}</h1>${actions(v.slug, 'article.content', false, csvs)}` +
     `<section class="section" aria-labelledby="summary"><h2 id="summary">Summary</h2>${vd.kpis(mine, true)}${vd.allocationCharts(mine, 'vendor-chart', { byDept: depts, vendor: true, lib: '../../vendor/chart.min.js' })}</section>` +
     `<section class="section" aria-labelledby="by-department"><h2 id="by-department">Departments</h2>${vd.groupTable(`Contract value of ${v.name} by department`, 'Department', depts, total, (g) => (deptHref(g.key) ? `<a href="${deptHref(g.key)}">${esc(g.name)}</a>` : esc(g.name)))}</section>` +
-    `<section class="section" aria-labelledby="contracts"><h2 id="contracts">Contracts</h2><div class="table-scroll" role="region" tabindex="0" aria-label="Contracts of ${esc(v.name)}"><table class="budget-table"><caption>Contracts of ${esc(v.name)}</caption><thead><tr><th scope="col">Contract</th><th scope="col">Department</th><th scope="col">Type</th><th scope="col">Status</th><th scope="col" class="budget-table__num">Value</th><th scope="col">Term</th></tr></thead><tbody>${mine.map(contractRow).join('')}</tbody></table></div></section>` +
+    `<section class="section" aria-labelledby="contracts"><h2 id="contracts">Contracts</h2>${bd.table(`Contracts of ${v.name}`, ['Contract', 'Department', 'Type', 'Status', 'Value', 'Term'], mine.map(contractRow), '', [4])}</section>` +
     `<section class="section" aria-labelledby="source"><h2 id="source">Source</h2><ul><li><a href="../data/contracts-display.json">Contract data (JSON)</a></li><li>Vendor record <code>urn:marin:vendor:${esc(id)}</code> in <code>vendors.jsonld</code></li></ul><p class="app-help-text">${esc(vd.NOTE)}</p></section>${jsonBlock(null, '../../shared/page-data.js', csvs)}</article>`;
   fs.writeFileSync(path.join(VEND, `${v.slug}.html`), shell(v.name, `Contracts the County of Marin has with ${v.name}.`, [['Marin Budget', '../../index.html'], ['Contracts', '../index.html'], [v.name, null]], body, '../'));
   count += 1;
 }
-console.log(`contracts: index.html and ${count} vendor pages (${rows.length} contracts)`);
+
+// ---- One page for each contract ------------------------------------------------------------------------
+// The name of the contract, its vendor and department as links, and its own facts in one list. Pages of contracts that are no longer in the data are removed.
+const CONTRACTS = path.join(OUT, 'c');
+fs.mkdirSync(CONTRACTS, { recursive: true });
+fs.writeFileSync(path.join(CONTRACTS, 'styles.css'), '@import url("../styles.css");\n');
+for (const f of fs.readdirSync(CONTRACTS)) if (f.endsWith('.html')) fs.unlinkSync(path.join(CONTRACTS, f));
+const fact = (name, html) => (html ? `<div><dt>${esc(name)}</dt><dd>${html}</dd></div>` : '');
+let contractPages = 0;
+for (const c of rows) {
+  const vendor = data.vendors[c.vendorId];
+  const facts = fact('Vendor', vendor ? `<a href="../vendors/${esc(vendor.slug)}.html">${esc(c.vendor)}</a>` : esc(c.vendor)) +
+    fact('Department', deptHref(c.dept) ? `<a href="${deptHref(c.dept)}">${esc(deptName(c.dept))}</a>` : esc(deptName(c.dept))) +
+    fact('Amount', esc(money(Math.round(c.value)))) + fact('Status', c.status === 'active' ? 'Active' : 'Terminated') + fact('Type', esc(c.type || '')) + fact('Method', esc(c.method || '')) +
+    fact('Start', esc(longDate(c.start))) + fact('End', esc(longDate(c.end))) + fact('Year', esc(String(c.year || ''))) + fact('Project', esc(c.project || '')) + fact('Contract number', esc(c.id));
+  // The same buttons as a vendor's page (Copy, Copy link, Download), and a CSV of the contract.
+  const csvs = [{ id: 'contract', label: 'contract', rows: [['Contract', 'Contract number', 'Vendor', 'Department', 'Amount', 'Status', 'Type', 'Method', 'Start', 'End', 'Year', 'Project'],
+    [c.name, c.id, c.vendor, deptName(c.dept), Math.round(c.value), c.status === 'active' ? 'Active' : 'Terminated', c.type || '', c.method || '', c.start || '', c.end || '', c.year || '', c.project || '']] }];
+  const body = `<article class="content"><h1 class="doc-title">${esc(c.name)}</h1>${actions(c.id, 'article.content', false, csvs)}<div class="facts"><dl>${facts}</dl></div>${jsonBlock(null, '../../shared/page-data.js', csvs)}</article>`;
+  fs.writeFileSync(path.join(CONTRACTS, `${c.id}.html`), shell(c.name, `Contract ${c.id} of the County of Marin with ${c.vendor}.`, [['Marin Budget', '../../index.html'], ['Contracts', '../index.html'], [c.name, null]], body, '../'));
+  contractPages += 1;
+}
+console.log(`contracts: index.html, ${count} vendor pages and ${contractPages} contract pages (${rows.length} contracts)`);

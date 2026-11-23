@@ -46,8 +46,10 @@
     const table = event.target instanceof Element ? event.target.closest("[data-download-csv]") : null;
     if (table) {
       const holder = document.getElementById(`csv-${table.dataset.downloadCsv}`);
-      if (!holder) return say(table, "No CSV is available for this page");
-      const rows = JSON.parse(holder.textContent);
+      // A table that changes with the filters has no list of rows kept for it: its rows are read from the table as it is.
+      const live = holder ? null : document.getElementById(table.dataset.downloadCsv)?.querySelector("table");
+      if (!holder && !live) return say(table, "No CSV is available for this page");
+      const rows = holder ? JSON.parse(holder.textContent) : [...live.querySelectorAll("tr")].map((tr) => [...tr.children].map((c) => c.textContent.trim()));
       // A table with its own file name (a table on the page, not the page) is saved under that name.
       const own = table.dataset.fileName;
       const name = own || table.closest(".doc-actions")?.dataset.fileName || "page";

@@ -19,6 +19,11 @@ function load() {
   const file = path.join(DIR, FILE);
   if (!fs.existsSync(file)) return null;
   const data = JSON.parse(fs.readFileSync(file, 'utf8'));
+  // Names are written as a department's are: a capital on each word, the short words and the company endings as they are written.
+  const display = require('../shared/display-name');
+  display.use(null);
+  for (const c of data.contracts) { c.name = display(c.name); c.vendor = display(c.vendor); }
+  for (const v of Object.values(data.vendors || {})) v.name = display(v.name);
   data.byDept = new Map();
   data.byVendor = new Map();
   for (const c of data.contracts) {
@@ -50,10 +55,11 @@ const vendorsOf = (rows) => group(rows, 'vendorId').map((g) => ({ ...g, name: ro
 const vendorHref = (data, id, up = '') => (data.vendors[id] ? `${up}${data.vendors[id].slug}.html` : null);
 
 // Key numbers for a set of contracts. A vendor's own page counts its departments instead of its vendors.
-function kpis(rows, countDepartments = false) {
+// `links` (optional) gives each card an address: { contracts, active, value, count }.
+function kpis(rows, countDepartments = false, links = {}) {
   const active = rows.filter((r) => r.status === 'active').length;
   const n = countDepartments ? new Set(rows.map((r) => r.dept)).size : new Set(rows.map((r) => r.vendorId)).size;
-  return `<div class="mm-stats-kpis">${kpi('Contracts', rows.length.toLocaleString('en-US'))}${kpi('Active contracts', active.toLocaleString('en-US'))}${kpi('Total contract value', millions(sum(rows)))}${kpi(countDepartments ? 'Departments' : 'Vendors', n.toLocaleString('en-US'))}</div>`;
+  return `<div class="mm-stats-kpis">${kpi('Contracts', rows.length.toLocaleString('en-US'), links.contracts)}${kpi('Active contracts', active.toLocaleString('en-US'), links.active)}${kpi('Total contract value', millions(sum(rows)), links.value)}${kpi(countDepartments ? 'Departments' : 'Vendors', n.toLocaleString('en-US'), links.count)}</div>`;
 }
 
 // Charts of where the value goes: by type, by vendor (unless `vendor` is set, on a vendor's own page) and by year.

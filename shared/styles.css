@@ -1,4 +1,4 @@
-@import url("../vendor/marinos/marinos.css");
+@import url("../vendor/marinos/marinos.css?v=fa402c76");
 
 .org-facts {
   display: grid;
@@ -167,10 +167,18 @@
 }
 
 .mm-stats-kpi__value {
-  margin: 0.25rem 0 0;
+  margin: 0 0 0.25rem;
   font-family: var(--app-font-heading);
-  font-size: 1.75rem;
+  font-size: 1.25rem;
   font-weight: 700;
+  color: var(--app-text);
+}
+
+/* A key-number tile is a card: its number is the title (1.25rem, bold, the link) and its words are a line of text (1rem, regular). */
+.mm-stats-kpi .app-help-text {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 400;
   color: var(--app-text);
 }
 
@@ -310,6 +318,41 @@
   overflow-wrap: anywhere;
 }
 
+/* A code written after a name in brackets: text of the same size on the same line. A code that is a link looks like every other link. */
+.code-text {
+  font: inherit;
+  color: inherit;
+}
+
+a.code-link {
+  font: inherit;
+}
+
+/* A tag on a card that filters by it: the same pill as a tag, as a button that says it can be pressed. */
+button.mm-term[data-badge-facet] {
+  width: auto;
+  min-height: 1.75rem; /* a pill, not the shell's 44 px button: still larger than the 24 px a target needs */
+  margin: 0;
+  border: 1px solid transparent;
+  background: color-mix(in srgb, var(--app-muted) 12%, transparent);
+  color: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  cursor: pointer;
+}
+
+button.mm-term[data-badge-facet]:hover {
+  border-color: var(--app-muted);
+}
+
+/* A contract's type or status, which is a tag that filters: it keeps the badge's own look, as a button of the badge's size. */
+button.app-badge[data-badge-facet] {
+  width: auto;
+  min-height: 1.75rem;
+  margin: 0;
+  cursor: pointer;
+}
+
 /* The login screen (shared/gate.js): while it shows, nothing else on the page does. */
 html[data-locked] body > *:not(.gate) {
   display: none !important;
@@ -340,4 +383,281 @@ html[data-locked] body > *:not(.gate) {
 /* Where a tab's data comes from, at the top of the tab. */
 .data-strip {
   margin: 0 0 1rem;
+}
+
+/* An accordion (a details that opens a list): a border around it, and the same type size as the text beside it. */
+details.drill {
+  margin: 0.75rem 0 0;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--app-border);
+  border-radius: var(--pico-border-radius);
+}
+
+details.drill > summary {
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* One size for the labels and the figures on cards and on a department's page. */
+.capital-figures dt {
+  font-size: 0.875rem;
+}
+
+.capital-figures dd {
+  font-size: 1rem;
+}
+
+/* A card, the same in every app: the name 1.25rem and bold, a line or two of text 1rem, a small line 0.875rem, all but the name regular. A card has no badge except a status (the shell's .app-status). */
+.mm-card__title {
+  margin: 0 0 0.25rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.mm-card__text {
+  margin: 0 0 0.25rem;
+  font-size: 1rem;
+  font-weight: 400;
+}
+
+.mm-card__byline,
+.mm-card__meta {
+  font-size: 0.875rem;
+  font-weight: 400;
+}
+
+.mm-card .capital-figures dd {
+  font-weight: 400;
+}
+
+/* A list of a thing's own facts, on the page of the thing (a contract, a department): one bordered box, a name and its value on each line. */
+.facts {
+  margin: 0 0 1rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--app-border);
+  border-radius: var(--pico-border-radius);
+}
+
+.facts dl {
+  margin: 0;
+}
+
+.facts dl > div {
+  display: grid;
+  grid-template-columns: minmax(12rem, 1fr) 2fr;
+  gap: 0 1rem;
+  padding: 0.125rem 0;
+}
+
+.facts dt,
+.facts dd {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 400;
+}
+
+#department-title {
+  font-size: 1.5rem;
+}
+
+/* A page title that is a name (a department) has room above it. */
+.doc-title {
+  margin-top: 1.5rem;
+}
+
+/* An accordion inside an accordion is a plain line that opens, not another box. */
+details.drill details.drill {
+  margin: 0.25rem 0 0;
+  padding: 0;
+  border: 0;
+}
+
+details.drill details.drill > summary {
+  font-weight: 400;
+}
+
+/* The search box on the home page. */
+.home-search {
+  display: block;
+  margin: 0 0 1.5rem;
+}
+
+.home-search .search-input-field {
+  width: 75%;
+  margin-bottom: 0;
+}
+
+@media (max-width: 640px) {
+  .home-search .search-input-field {
+    width: 100%;
+  }
+}
+
+.home-search__results {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+}
+
+.home-search__results li {
+  list-style: none;
+  margin: 0;
+  padding: 0.375rem 0;
+  border-top: 1px solid var(--app-border);
+  text-align: left;
+}
+
+.home-search__kind {
+  color: var(--app-muted);
+}
+
+/* Table headings are bold. A row and a column marked by pressing a cell share one tint; the cell pressed has an outline. */
+:root {
+  --table-mark: color-mix(in srgb, var(--app-accent, #0777cf) 12%, var(--app-surface, #fff));
+}
+
+thead th {
+  font-weight: 700;
+}
+
+tr.is-selected-row > * {
+  background-color: var(--table-mark);
+}
+
+td.is-selected-cell,
+th.is-selected-cell {
+  outline: 2px solid var(--app-accent, #0777cf);
+  outline-offset: -2px;
+}
+
+/* The line above results, the same on every page: 1rem above and 0.5rem below (close to the buttons it belongs with), regular weight, the count then what narrows it. Set here and nowhere else. */
+.mm-results-summary {
+  display: flex;
+  flex-direction: column;
+  margin: 1rem 0 0.5rem;
+}
+
+.mm-results-summary p,
+.mm-results-summary [data-filter-results] {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 400;
+}
+
+.results-line__count {
+  color: var(--app-text);
+}
+
+.results-line__filters,
+.results-line__slash {
+  color: var(--app-muted);
+}
+
+/* A table (or the page of a tool) opened at the size of the screen: its action buttons stay above it, and what scrolls scrolls inside. */
+html.has-expanded {
+  overflow: hidden;
+}
+
+.is-expanded {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  box-sizing: border-box;
+  overflow: auto;
+  padding: 1.5rem;
+  background: var(--pico-background-color, #fff);
+}
+
+.is-expanded .table-scroll {
+  max-height: none;
+}
+
+.is-expanded .accounts-scroll {
+  max-height: calc(100vh - 7rem);
+}
+
+/* The page of results, in groups by kind. */
+.home-search__group {
+  list-style: none;
+  margin: 1.5rem 0 0;
+  padding: 0;
+}
+
+.home-search__group > h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.125rem;
+}
+
+.home-search__group .home-search__results {
+  margin-top: 0;
+}
+
+/* The status on a card is the shell's status badge; where it is pressed to filter, it is a button that looks the same. */
+button.app-status[data-badge-facet] {
+  min-height: 1.5rem;
+  margin: 0;
+  border: 0;
+  cursor: pointer;
+}
+
+/* A section of the Dashboard is a section of a page: its heading is the size of the section headings of the other pages (the shell makes it smaller). */
+.org-dash h2 {
+  font-size: 1.75rem;
+  font-weight: 600;
+}
+
+/* A chart opened at the size of the screen fills it (the box its canvas is in is as tall as the screen less the buttons and the title). */
+.chart-block.is-expanded div:has(> canvas) {
+  height: calc(100vh - 11rem) !important;
+}
+
+/* The buttons of a chart or a table are 1rem above it, the same as a tool's toolbar is above its list. */
+.chart-block > .doc-actions,
+.table-block > .doc-actions {
+  margin-bottom: 1rem;
+}
+
+/* The title of a chart card is the title of every card: 1.25rem and bold. */
+.app-card > h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+/* The figures on a card are lines of text, a label and its value on one line, like the text of any card. */
+.mm-card .capital-figures {
+  display: block;
+  margin: 0;
+}
+
+.mm-card .capital-figures > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 0.5rem;
+  margin: 0 0 0.25rem;
+}
+
+.mm-card .capital-figures dt,
+.mm-card .capital-figures dd {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 400;
+}
+
+.mm-card .capital-figures dt {
+  color: var(--app-muted);
 }

@@ -77,11 +77,12 @@
 
   // "All departments · All types · Any status · All years (1,648 vendors, 5,236 contracts — Active 2,129, Terminated 3,107)"
   function describeFilters(vendors) {
-    const parts = FACETS.map((f) => (chosen(f).length ? chosen(f).join(", ") : f.all));
-    if (searched()) parts.push(`matching "${searched()}"`);
-    const active = filtered.filter((c) => c.status === "active").length;
-    const counts = state.view === "contracts" && !state.stats ? plural(filtered.length, "contract", "contracts") : `${plural(vendors.length, "vendor", "vendors")}, ${plural(filtered.length, "contract", "contracts")}`;
-    return `${parts.join(" \u00b7 ")} (${counts} \u2014 Active ${active.toLocaleString("en-US")}, Terminated ${(filtered.length - active).toLocaleString("en-US")})`;
+    // The count first, then only the choices that narrow it.
+    const parts = FACETS.map((f) => (chosen(f).length ? window.marinResultsLine.values(chosen(f)) : "")).filter(Boolean);
+    if (searched()) parts.unshift(`matching \u201c${searched()}\u201d`);
+    // One count, the unit of the view: contracts on Contracts (and on its Stats), vendors on Vendors (and on its Stats). A vendor's contracts are on its card.
+    const counts = state.view === "contracts" ? plural(filtered.length, "contract", "contracts") : plural(vendors.length, "vendor", "vendors");
+    return window.marinResultsLine({ count: counts, filters: parts });
   }
 
   // ---- Lists -------------------------------------------------------------------------------------------
@@ -103,15 +104,14 @@
     return [...map.values()].sort(sorter((v) => v.name, (v) => v.value));
   }
 
+  // A card is a name that opens the page, and a line or two of plain text: a vendor's number of contracts and its total, a contract's vendor and its amount.
   function vendorCard(v) {
-    const names = [...v.depts.entries()].sort((a, b) => b[1] - a[1]).map(([d]) => deptNames[d] || d);
-    const depts = names.length > 3 ? `${names.slice(0, 3).join(", ")} and ${names.length - 3} more` : names.join(", ");
     const page = vendorPages[v.id];
-    return `<li class="app-card">
-      <h3 class="vendor-card__name">${page ? `<a href="vendors/${escapeHtml(page)}.html">${escapeHtml(v.name)}</a>` : escapeHtml(v.name)}</h3>
-      <p class="vendor-card__meta"><span class="vendor-card__value">${money(v.value)}</span><span class="app-badge">${plural(v.count, "contract", "contracts")}</span></p>
-      <dl class="mini-dl"><dt>${names.length === 1 ? "Department" : "Departments"}</dt><dd>${escapeHtml(depts)}</dd></dl>
-    </li>`;
+    return `<li class="app-card mm-card"><div class="mm-card__body">
+      <h3 class="mm-card__title">${page ? `<a href="vendors/${escapeHtml(page)}.html">${escapeHtml(v.name)}</a>` : escapeHtml(v.name)}</h3>
+      <p class="mm-card__text">${plural(v.count, "contract", "contracts")}</p>
+      <p class="mm-card__text">${money(v.value)}</p>
+    </div></li>`;
   }
 
   function dateRange(c) {
@@ -119,21 +119,19 @@
     return c.end ? `Ends ${c.end}` : c.start ? `Starts ${c.start}` : "";
   }
 
+  // A tag on a contract is a button that applies that filter.
+  // The status of a contract is the shell's status badge: blue while it is active, green when it is done.
+  const STATUS_KIND = { Active: "open", Terminated: "done" };
+  const tag = (facet, value) => `<button type="button" class="app-status" data-status="${STATUS_KIND[value] || "open"}" data-button-kind="content" data-badge-facet="${facet}" data-badge-value="${escapeHtml(value)}" title="Filter by this" aria-label="Filter by ${facet}: ${escapeHtml(value)}">${escapeHtml(value)}</button>`;
+
   function contractCard(c) {
-    const dept = deptNames[c.dept] || c.dept;
-    const link = deptLinks[c.dept];
     const page = vendorPages[c.vendorId];
-    return `<li class="app-card">
-      <h3 class="contract-card__name">${escapeHtml(c.name)}</h3>
-      <p class="contract-card__vendor">${page ? `<a href="vendors/${escapeHtml(page)}.html">${escapeHtml(c.vendor)}</a>` : escapeHtml(c.vendor)}</p>
-      <p class="contract-card__meta"><span class="contract-card__value">${money(c.value)}</span>
-        ${c.type ? `<span class="app-badge">${escapeHtml(c.type)}</span>` : ""}
-        <span class="app-badge">${c.status === "active" ? "Active" : "Terminated"}</span></p>
-      <dl class="mini-dl"><dt>Department</dt><dd>${link ? `<a href="${escapeHtml(link)}">${escapeHtml(dept)}</a>` : escapeHtml(dept)}</dd></dl>
-      ${dateRange(c) ? `<dl class="mini-dl"><dt>Term</dt><dd>${escapeHtml(dateRange(c))}</dd></dl>` : ""}
-      ${c.project ? `<dl class="mini-dl"><dt>Project</dt><dd>${escapeHtml(c.project)}</dd></dl>` : ""}
-      <dl class="mini-dl"><dt>Contract</dt><dd>${escapeHtml(c.id)}</dd></dl>
-    </li>`;
+    return `<li class="app-card mm-card"><div class="mm-card__body">
+      <h3 class="mm-card__title"><a href="c/${escapeHtml(c.id)}.html">${escapeHtml(c.name)}</a></h3>
+      <p class="mm-card__text">${page ? `<a href="vendors/${escapeHtml(page)}.html">${escapeHtml(c.vendor)}</a>` : escapeHtml(c.vendor)}</p>
+      <p class="mm-card__text">${money(c.value)}</p>
+      <div class="mm-terms">${tag("status", c.status === "active" ? "Active" : "Terminated")}</div>
+    </div></li>`;
   }
 
   // ---- Stats -------------------------------------------------------------------------------------------
@@ -216,7 +214,7 @@
     vendorsEl.hidden = state.stats || state.view !== "vendors";
     contractsEl.hidden = state.stats || state.view !== "contracts";
 
-    column.setResults(filtered.length, "Showing: " + describeFilters(vendors));
+    column.setResults(filtered.length, describeFilters(vendors));
 
     if (state.stats) {
       moreRow.hidden = true;
@@ -315,6 +313,12 @@
       refilter();
     });
     wireActions();
+    contractsEl.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-badge-facet]");
+      if (!button) return;
+      column.setValue(button.dataset.badgeFacet, [button.dataset.badgeValue]);
+      refilter();
+    });
     $("view-tabs").addEventListener("click", (event) => {
       const button = event.target.closest("[data-view]");
       if (!button) return;
@@ -338,6 +342,6 @@
   // The data and the drawn column are both needed before the choices can be supplied.
   const columnReady = new Promise((resolve) => (column.setOptions ? resolve() : column.addEventListener("marin-filter-ready", resolve, { once: true })));
   Promise.all([fetch(DATA_URL).then((response) => (response.ok ? response.json() : Promise.reject(new Error("bad response")))), columnReady])
-    .then(([data]) => init(data))
+    .then(([data]) => { const display = window.marinDisplayName; data.contracts.forEach((c) => { c.name = display(c.name); c.vendor = display(c.vendor); }); Object.values(data.vendors || {}).forEach((v) => { v.name = display(v.name); }); return init(data); })
     .catch(() => { summaryEl.textContent = "Could not load the contracts right now. Try reloading the page."; });
 })();

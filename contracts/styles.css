@@ -1,47 +1,4 @@
-@import url("../capital/styles.css");
-
-.vendor-card__name,
-.contract-card__name {
-  margin: 0 0 0.15rem;
-  font-size: 1.05rem;
-}
-
-.vendor-card__meta,
-.contract-card__meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  align-items: center;
-  margin: 0.5rem 0 0;
-}
-
-.vendor-card__value,
-.contract-card__value {
-  font-weight: 700;
-}
-
-.contract-card__vendor {
-  margin: 0 0 0.5rem;
-  color: var(--app-muted);
-  font-size: 0.875rem;
-}
-
-.mini-dl {
-  margin: 0.4rem 0 0;
-}
-
-.mini-dl dt {
-  font-weight: 700;
-}
-
-.mini-dl dt,
-.mini-dl dd {
-  display: inline;
-}
-
-.mini-dl dd {
-  margin-left: 0.35rem;
-}
+@import url("../capital/styles.css?v=fa402c76");
 
 #more-row {
   display: flex;
@@ -54,17 +11,3 @@
   width: 100%;
 }
 
-/* The "Showing:" line above the toolbar (Marin Reach, Marin Mentions). */
-.mm-results-summary {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 1rem;
-}
-
-.mm-results-summary p {
-  margin: 0;
-}
-
-#active-filters {
-  font-weight: 700;
-}

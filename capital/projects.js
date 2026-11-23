@@ -91,8 +91,7 @@
     document.querySelector(".search-results .action-toolbar").hidden = other;
     // Copy and Download follow what is open; the stats have no CSV or JSON.
     // On Stats the chart actions replace the Copy and Download menus; the link stays.
-    const chartActions = document.getElementById("chart-actions");
-    if (chartActions) chartActions.hidden = !stats;
+    document.querySelectorAll(".chart-part").forEach((part) => { part.hidden = !stats; });
     if (bar) {
       bar.dataset.formatsFor = "#project-export";
       bar.querySelectorAll(".menu").forEach((el) => { el.hidden = stats; });
@@ -142,11 +141,11 @@
       cell(tr, 2, money(sum(mine, "cost")));
       cell(tr, 3, money(isWhole() && printedCategories[tr.dataset.category] != null ? printedCategories[tr.dataset.category] : sum(mine, "programmed")));
     });
-    // The Showing line: each filter in order, its choice or its "all" words, then the count and a short breakdown.
-    const parts = groups.map((group) => { const on = chosen(group); return on.length ? on.map((v) => labelOf(group, v)).join(" or ") : group.allLabel; });
+    // The count first, then only the choices that narrow it.
+    const narrowing = groups.map((group) => { const on = chosen(group); return on.length ? window.marinResultsLine.values(on.map((v) => labelOf(group, v)), " or ") : ""; }).filter(Boolean);
     const q = column.filterState.search.trim();
-    const isNew = visible.filter((c) => c.dataset.facetStatus === "New").length;
-    column.setResults(visible.length, `Showing: ${q ? `“${q}” · ` : ""}${parts.join(" · ")} (${visible.length} ${visible.length === 1 ? "project" : "projects"} — New ${isNew}, Ongoing ${visible.length - isNew})`);
+    if (q) narrowing.unshift(`matching \u201c${q}\u201d`);
+    column.setResults(visible.length, window.marinResultsLine({ count: window.marinResultsLine.count(visible.length, "project", "projects"), filters: narrowing }));
     showing = visible;
     refreshOutput();
     renderCharts();
@@ -305,6 +304,13 @@
   column.addEventListener("marin-filter-change", (event) => {
     // Reset also goes back to the first tab.
     if (event.detail.source === "reset") { tab = "projects"; applyView(); }
+    filterNow();
+  });
+  // A tag on a card filters by it.
+  document.addEventListener("click", (event) => {
+    const tag = event.target.closest("[data-badge-facet]");
+    if (!tag) return;
+    column.setValue(tag.dataset.badgeFacet, [tag.dataset.badgeValue]);
     filterNow();
   });
   filterNow();

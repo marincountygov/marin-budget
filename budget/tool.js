@@ -15,7 +15,7 @@
   let showing = [];
   const cards = Array.from(cardsEl.children);
   const rows = new Map(Array.from(tbody.children).map((row) => [row.dataset.line, row]));
-  const money = (n) => (n < 0 ? "−" : "") + "$" + Math.abs(n).toLocaleString("en-US");
+  const money = (n) => { const r = Math.round(Math.abs(n)); return (n < 0 && r > 0 ? "−" : "") + "$" + r.toLocaleString("en-US"); };
   const millions = (n) => (n < 0 ? "−" : "") + "$" + (Math.abs(n) / 1e6).toFixed(1) + "M";
   const params = () => new URLSearchParams(window.location.search);
   const remember = (name, value, fallback) => {
@@ -33,9 +33,16 @@
   const MULTI = Boolean(cfg.measures);
   const MEASURES = MULTI ? cfg.measures : [{ id: "", label: "" }];
   const measureLabel = Object.fromEntries(MEASURES.map((m) => [m.id, m.label]));
-  const YEAR_LABELS = MULTI ? [...new Set(cfg.columns.map((c) => c.label))] : cfg.columns.map((c) => c.label);
-  const colOf = (m, y) => cfg.columns.findIndex((c) => (MULTI ? c.measure === m : true) && c.label === YEAR_LABELS[y]); // -1 when the book has no such figure
-  const columnName = (k) => (MULTI ? `${measureLabel[cfg.columns[k].measure]}, ${cfg.columns[k].label}` : cfg.columns[k].label);
+  // The years, oldest first: a page gives them (a year that only has actuals is first met late in the columns); otherwise they are the columns' own.
+  const YEAR_LABELS = cfg.years || (MULTI ? [...new Set(cfg.columns.map((c) => c.label))] : cfg.columns.map((c) => c.label));
+  // With amounts (Original budget, Actuals, ...) a column is also one kind of amount; a book without them has none.
+  const BASES = cfg.bases || [{ id: "", label: "" }];
+  const basisLabel = Object.fromEntries(BASES.map((b) => [b.id, b.label]));
+  const colOf = (m, b, y) => cfg.columns.findIndex((c) => (MULTI ? c.measure === m : true) && (cfg.bases ? c.basis === b : true) && c.label === YEAR_LABELS[y]); // -1 when the book has no such figure
+  const basisOf = (c) => (cfg.bases ? c.basisLabel || basisLabel[c.basis] : "");
+  // On a card, where one measure is shown the amount says it all ("Adopted budget, FY 2026-27"); with several, the measure comes first. A table and a file always name both.
+  const cardName = (k) => (selMeasures.length === 1 && cfg.columns[k].short ? cfg.columns[k].short : columnName(k));
+  const columnName = (k) => cfg.columns[k].name || (MULTI ? `${measureLabel[cfg.columns[k].measure]}${cfg.bases ? `, ${basisOf(cfg.columns[k])}` : ""}, ${cfg.columns[k].label}` : cfg.columns[k].label);
   // The budget book: each book is its own page, so choosing one goes to it. Only a page of this site.
   const goTo = (href) => { const url = new URL(href, window.location.href); if (url.origin === window.location.origin) window.location.assign(url.href); };
 
@@ -43,13 +50,15 @@
   const column = document.querySelector("[data-filter-column]");
   const facetKey = (name) => `facet${name.charAt(0).toUpperCase()}${name.slice(1)}`;
   // What the column matches: one record for each line, with the fields filters.json names.
-  const records = cards.map((card) => ({ line: card.dataset.line, title: card.dataset.title, ...Object.fromEntries(cfg.facets.map((f) => [f.name, card.dataset[facetKey(f.name)]])) }));
+  const records = cards.map((card) => ({ line: card.dataset.line, title: card.dataset.title, codes: (card.dataset.codes || "").split(" ").filter(Boolean).concat(card.dataset.code || []), terms: card.dataset.terms || "",
+    ...Object.fromEntries(cfg.facets.map((f) => [f.name, f.list ? (card.dataset[facetKey(f.name)] || "").split("|").filter(Boolean) : card.dataset[facetKey(f.name)]])) }));
   // An address from before the column was drawn from a file still works: a list in one parameter (a,b) with a comma inside
   // a value written %2C, and ?show=N on a page with measures.
   const legacyAddress = () => {
     const p = params();
     let changed = false;
     cfg.facets.forEach((f) => {
+      if (f.list) return;
       const known = new Set(records.map((r) => r[f.name]));
       const raw = p.getAll(f.name);
       if (raw.length !== 1 || known.has(raw[0])) return;
@@ -69,24 +78,29 @@
 
   // What the cards, stats and charts show. The table always shows every column.
   const DEFAULT_MEASURE = MULTI ? cfg.columns[cfg.defaultColumn].measure : "";
+  const DEFAULT_BASIS = cfg.bases ? cfg.columns[cfg.defaultColumn].basis : "";
   const DEFAULT_YEAR = YEAR_LABELS.indexOf(cfg.columns[cfg.defaultColumn].label);
+  let selBases = [DEFAULT_BASIS];
   let selMeasures = [DEFAULT_MEASURE];
   let selYears = [DEFAULT_YEAR];
   let compareOn = false;
   const tidy = () => {
     selMeasures = MEASURES.map((m) => m.id).filter((id) => selMeasures.includes(id));
+    selBases = BASES.map((b) => b.id).filter((id) => selBases.includes(id));
     selYears = Array.from(new Set(selYears)).sort((a, b) => a - b);
   };
   const primaryColumn = () => {
-    for (const m of selMeasures) {
-      const ys = selYears.filter((y) => colOf(m, y) >= 0);
-      if (ys.length) return colOf(m, ys[ys.length - 1]);
+    for (const m of selMeasures) for (const b of selBases) {
+      const ys = selYears.filter((y) => colOf(m, b, y) >= 0);
+      if (ys.length) return colOf(m, b, ys[ys.length - 1]);
     }
-    for (let y = YEAR_LABELS.length - 1; y >= 0; y -= 1) if (colOf(selMeasures[0], y) >= 0) return colOf(selMeasures[0], y); // none of the chosen years has a figure: the latest there is
+    for (let y = YEAR_LABELS.length - 1; y >= 0; y -= 1) if (colOf(selMeasures[0], selBases[0], y) >= 0) return colOf(selMeasures[0], selBases[0], y); // none of the chosen years has a figure: the latest there is
     return cfg.defaultColumn;
   };
   let col = cfg.defaultColumn;
   const mainMeasure = () => (MULTI ? cfg.columns[col].measure : "");
+  const mainBasis = () => (cfg.bases ? cfg.columns[col].basis : "");
+  const mainName = () => cfg.columns[col].stem || `${measureLabel[mainMeasure()]}${cfg.bases ? `, ${basisOf(cfg.columns[col])}` : ""}`;
   // Read what the column holds. At least one measure and one year stay chosen: unchecking the last one puts it back.
   const readColumn = () => {
     const g = column.filterState.groups;
@@ -94,6 +108,10 @@
       const measures = g.measure || [];
       const chosenYears = (g.year || []).map(Number);
       if (measures.length) selMeasures = measures; else column.setValue("measure", selMeasures);
+      if (cfg.bases) {
+        const chosenBases = g.basis || [];
+        if (chosenBases.length) selBases = chosenBases; else column.setValue("basis", selBases);
+      }
       if (chosenYears.length) selYears = chosenYears; else column.setValue("year", selYears.map(String));
       compareOn = (g.change || []).includes("1");
     } else selYears = [Number(g.year)];
@@ -107,17 +125,32 @@
   const fill = (el, dl) => {
     const num = (k) => (k < 0 || el.dataset[`v${k}`] === "" ? null : Number(el.dataset[`v${k}`]));
     const out = [];
-    selMeasures.forEach((m) => {
-      selYears.forEach((y) => out.push([MULTI ? `${measureLabel[m]}, ${YEAR_LABELS[y]}` : YEAR_LABELS[y], num(colOf(m, y)), false]));
-      const ys = selYears.filter((y) => colOf(m, y) >= 0);
+    selMeasures.forEach((m) => selBases.forEach((bs) => {
+      const what = `${MULTI ? measureLabel[m] : ""}${cfg.bases ? `, ${basisLabel[bs]}` : ""}`;
+      selYears.forEach((y) => {
+        const k = colOf(m, bs, y);
+        // A book that has no such figure shows a dash; a book with amounts leaves out a year that has none (Encumbrances and Available are only for the year in progress).
+        if (k < 0 && cfg.skipMissing) return;
+        out.push([MULTI ? `${cfg.bases && k >= 0 ? cardName(k) : `${what}, ${YEAR_LABELS[y]}`}` : YEAR_LABELS[y], num(k), false]);
+      });
+      const ys = selYears.filter((y) => colOf(m, bs, y) >= 0);
       // Each year is compared with the one before it that is shown, so Actual to Approved and Approved to Proposed are both there when all three years are chosen.
       if (compareOn) for (let i = 1; i < ys.length; i += 1) {
-        const [a, b] = [num(colOf(m, ys[i - 1])), num(colOf(m, ys[i]))];
+        const [a, b] = [num(colOf(m, bs, ys[i - 1])), num(colOf(m, bs, ys[i]))];
         const pct = a ? ` (${(((b - a) / Math.abs(a)) * 100).toFixed(1)}%)` : "";
-        out.push([`Change in ${sentenceCase(MULTI ? measureLabel[m] : "expenditures")}, ${YEAR_LABELS[ys[i - 1]]} to ${YEAR_LABELS[ys[i]]}`, a == null || b == null ? null : b - a, true, pct]);
+        const stem = ys.length && (selMeasures.length === 1 && cfg.columns[colOf(m, bs, ys[0])].shortStem ? cfg.columns[colOf(m, bs, ys[0])].shortStem : cfg.columns[colOf(m, bs, ys[0])].stem);
+        out.push([stem ? `${stem}, change from ${YEAR_LABELS[ys[i - 1]]} to ${YEAR_LABELS[ys[i]]}` : `Change in ${sentenceCase(MULTI ? what : "expenditures")}, ${YEAR_LABELS[ys[i - 1]]} to ${YEAR_LABELS[ys[i]]}`, a == null || b == null ? null : b - a, true, pct]);
       }
-    });
+    }));
     dl.innerHTML = out.map(([label, v, change, pct]) => `<div><dt>${label.replace(/&/g, "&amp;")}</dt><dd>${v == null ? "–" : change ? signedMoney(v) + (pct || "") : money(v)}</dd></div>`).join("");
+  };
+  // A book's table and exports show every column; a page with kinds of amount shows the measures, amounts and years that are chosen.
+  const colFacets = cfg.facets.filter((f) => !f.noColumn); // the facets that have a column in the table and in the exports
+  const colShown = (k) => !cfg.skipMissing || (selMeasures.includes(cfg.columns[k].measure) && selBases.includes(cfg.columns[k].basis) && selYears.includes(YEAR_LABELS.indexOf(cfg.columns[k].label)));
+  const tableColumns = () => {
+    if (!cfg.skipMissing) return;
+    const offset = 2 + colFacets.length; // the pick box, the name and the facets come first
+    document.querySelectorAll("#line-table tr").forEach((tr) => cfg.columns.forEach((c, k) => { if (tr.children[offset + k]) tr.children[offset + k].hidden = !colShown(k); }));
   };
   const applyColumn = () => {
     cards.forEach((card) => {
@@ -125,6 +158,7 @@
       card.querySelectorAll(".drill-row:not([data-none])").forEach((row) => fill(row, row.querySelector(":scope > dl.capital-figures")));
     });
     document.querySelectorAll("[data-column-label]").forEach((el) => { el.textContent = columnName(col); });
+    tableColumns();
   };
   // The column matches the lines; the cards the lines do not match are hidden, and the counts beside each choice follow.
   const filterNow = () => {
@@ -132,6 +166,7 @@
     cards.forEach((card) => { card.hidden = !hit.has(card.dataset.line); });
     update(cards.filter((card) => !card.hidden));
     column.updateCounts(records);
+    document.dispatchEvent(new Event("marin-budget-counts")); // a page's own script can tidy the counts (budget/accounting.js leaves out a choice that is 0)
   };
   column.addEventListener("marin-filter-change", (event) => {
     const source = event.detail.source;
@@ -184,8 +219,7 @@
     document.getElementById("view-group").hidden = tab !== "lines";
     document.querySelector(".search-results .mm-results-summary").hidden = other;
     document.querySelector(".search-results .action-toolbar").hidden = other;
-    const chartActions = document.getElementById("chart-actions");
-    if (chartActions) chartActions.hidden = !(stats || tab === "compare");
+    document.querySelectorAll(".chart-part").forEach((part) => { part.hidden = !(stats || tab === "compare"); });
     if (bar) {
       bar.dataset.formatsFor = "#line-export";
       bar.querySelectorAll(".menu").forEach((el) => { el.hidden = stats; });
@@ -208,6 +242,13 @@
 
   // ---- the filters: what is chosen, in words ------------------------------------------------------------------------
   const chosenFacet = (f) => column.filterState.groups[f.name] || [];
+  // A facet of codes (funds, functions, categories) is said as its name, its code or both, as the choice of Names and codes says.
+  const facetValueLabel = (f, v) => {
+    if (!f.names) return v;
+    const name = f.names[v] || v;
+    const mode = column.filterState.groups.labels || "both";
+    return mode === "codes" ? v : mode === "names" ? name : `${name} (${v})`;
+  };
 
   // ---- stats --------------------------------------------------------------------------------------------------
   const num = (el, key) => Number(el.dataset[key]) || 0;
@@ -233,25 +274,25 @@
     setStat("total", millions(sum(visible, `v${col}`)));
     setStat("n", String(visible.length));
     setStat("count", String(new Set(visible.map((c) => c.dataset[facetKey(cfg.countFacet)])).size));
-    yearRows.forEach((tr) => { const k = colOf(mainMeasure(), Number(tr.dataset.year)); cell(tr, 1, k < 0 ? "–" : money(sum(visible, `v${k}`))); });
+    yearRows.forEach((tr) => { const k = colOf(mainMeasure(), mainBasis(), Number(tr.dataset.year)); cell(tr, 1, k < 0 ? "–" : money(sum(visible, `v${k}`))); });
     if (MULTI) {
       const table = document.getElementById("selection-years").closest("table");
-      table.querySelector("caption").textContent = `${measureLabel[mainMeasure()]} by year, for the selection`;
-      table.querySelector("thead th:nth-child(2)").textContent = measureLabel[mainMeasure()];
+      table.querySelector("caption").textContent = `${mainName()} by year, for the selection`;
+      table.querySelector("thead th:nth-child(2)").textContent = mainName();
     }
     facetRows.forEach((tr) => {
       const mine = visible.filter((c) => c.dataset[facetKey(cfg.chartFacets[0])] === tr.dataset.value);
       cell(tr, 1, String(mine.length));
       cell(tr, 2, money(sum(mine, `v${col}`)));
     });
-    // As on Marin Mentions: each filter in order (what is shown first, then the others), then the count with a breakdown of every value, zeros too.
-    const parts = [...(MULTI ? [selMeasures.map((m) => measureLabel[m]).join(", ")] : []), selYears.map((y) => YEAR_LABELS[y]).join(", "), ...cfg.facets.map((f) => { const on = chosenFacet(f); return on.length ? on.join(" or ") : f.all; })];
     const q = column.filterState.search.trim();
     // The overview is of the whole book: it shows only while nothing narrows the selection (the year is not a filter).
     const overview = document.getElementById("stats-overview");
     if (overview) overview.hidden = Boolean(q) || cfg.facets.some((f) => chosenFacet(f).length > 0);
-    const breakdown = valuesOf(cfg.breakdownFacet).map((v) => `${v} ${visible.filter((c) => c.dataset[facetKey(cfg.breakdownFacet)] === v).length}`).join(", ");
-    column.setResults(visible.length, `Showing: ${q ? `“${q}” · ` : ""}${parts.join(" · ")} (${visible.length} ${visible.length === 1 ? cfg.noun.one : cfg.noun.many} — ${breakdown})`);
+    // The count first, then only the choices that narrow it (the figure choices are on every card and column; the breakdown is in Stats).
+    const narrowing = cfg.facets.map((f) => { const on = chosenFacet(f); const isDefault = Boolean(f.default) && on.length === f.default.length && on.every((v) => f.default.includes(v)); return on.length && !isDefault ? window.marinResultsLine.values(on.map((v) => facetValueLabel(f, v)), " or ") : ""; }).filter(Boolean);
+    if (q) narrowing.unshift(`matching \u201c${q}\u201d`);
+    column.setResults(visible.length, window.marinResultsLine({ count: window.marinResultsLine.count(visible.length, cfg.noun.one, cfg.noun.many), filters: narrowing })); // at none, the filter column offers its own Reset
     showing = visible;
     setSelectionTitle();
     refreshOutput();
@@ -319,12 +360,12 @@
   const renderCharts = () => {
     if (!charts.years) return;
     const none = `No ${cfg.noun.many} selected.`;
-    const yearsShown = YEAR_LABELS.map((_, y) => y).filter((y) => colOf(mainMeasure(), y) >= 0); // the years the book has this measure for
-    const yearData = yearsShown.map((y) => sum(showing, `v${colOf(mainMeasure(), y)}`));
+    const yearsShown = YEAR_LABELS.map((_, y) => y).filter((y) => colOf(mainMeasure(), mainBasis(), y) >= 0); // the years the book has this measure for
+    const yearData = yearsShown.map((y) => sum(showing, `v${colOf(mainMeasure(), mainBasis(), y)}`));
     charts.years.data.labels = yearsShown.map((y) => YEAR_LABELS[y]);
     charts.years.data.datasets[0].data = yearData;
-    charts.years.data.datasets[0].label = MULTI ? measureLabel[mainMeasure()] : "Expenditures";
-    if (MULTI) chartBox.querySelector('[data-chart-card="years"] h3').textContent = `${measureLabel[mainMeasure()]} by year`;
+    charts.years.data.datasets[0].label = MULTI ? mainName() : "Expenditures";
+    if (MULTI) chartBox.querySelector('[data-chart-card="years"] h3').textContent = `${mainName()} by year`;
     const peak = yearData.indexOf(Math.max(...yearData));
     describe("years", showing.length ? `${YEAR_LABELS[yearsShown[peak]]} is the largest at ${amount(yearData[peak])}.` : none);
     cfg.chartFacets.forEach((name) => {
@@ -486,16 +527,16 @@
     selectAll.indeterminate = picked.length > 0 && picked.length < showing.length;
     countEl.textContent = picked.length ? `${picked.length} selected` : "";
     if (tab === "compare") { exportCompare(); return; }
-    const head = [cfg.titleLabel, ...cfg.facets.map((f) => f.label.replace(/s$/, "")), ...YEARS.map((y, k) => columnName(k))];
-    const cellsOf = (c) => [c.dataset.title, ...cfg.facets.map((f) => c.dataset[facetKey(f.name)]), ...YEARS.map((y) => (c.dataset[`v${y.key}`] === "" ? "" : money(num(c, `v${y.key}`))))];
+    const shownYears = YEARS.filter((y) => colShown(Number(y.key)));
+    const head = [cfg.titleLabel, ...colFacets.map((f) => f.one), ...shownYears.map((y) => columnName(Number(y.key)))];
+    const cellsOf = (c) => [c.dataset.title, ...colFacets.map((f) => c.dataset[facetKey(f.name)]), ...shownYears.map((y) => (c.dataset[`v${y.key}`] === "" ? "" : money(num(c, `v${y.key}`))))];
     const esc = (t) => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
     exportEl.innerHTML = `<table><caption>${esc(cfg.exportCaption)}</caption><thead><tr>${head.map((h) => `<th>${esc(h)}</th>`).join("")}</tr></thead><tbody>` +
       out.map((c) => `<tr>${cellsOf(c).map((t) => `<td>${esc(t)}</td>`).join("")}</tr>`).join("") + "</tbody></table>";
     const csv = document.getElementById("csv-table");
     if (csv) {
-      csv.dataset.first = csv.dataset.first || JSON.stringify(JSON.parse(csv.textContent)[0]);
-      const first = JSON.parse(csv.dataset.first);
-      csv.textContent = JSON.stringify([first, ...out.map((c) => [c.dataset.title, ...cfg.facets.map((f) => c.dataset[facetKey(f.name)]), ...YEARS.map((y) => (c.dataset[`v${y.key}`] === "" ? "" : num(c, `v${y.key}`))), c.dataset.page])]);
+      // The header and the rows are made together, so they always have the same columns; a book's rows end with its printed page.
+      csv.textContent = JSON.stringify([[...head, ...(cfg.pageColumn ? ["Book page"] : [])], ...out.map((c) => [c.dataset.title, ...colFacets.map((f) => c.dataset[facetKey(f.name)]), ...shownYears.map((y) => (c.dataset[`v${y.key}`] === "" ? "" : num(c, `v${y.key}`))), ...(cfg.pageColumn ? [c.dataset.page] : [])])]);
     }
     const ld = document.getElementById("page-data");
     if (ld) {
@@ -518,6 +559,16 @@
     refreshOutput();
   });
 
+  // A page's own script (budget/accounting.js) fills the rows it makes later the same way, and filters by a code.
+  window.marinBudgetTool = { fill, column, refilter: () => { readColumn(); applyColumn(); filterNow(); } };
+  // A tag on a card filters by it.
+  document.addEventListener("click", (event) => {
+    const tag = event.target.closest("[data-badge-facet]");
+    if (!tag) return;
+    column.setValue(tag.dataset.badgeFacet, [tag.dataset.badgeValue]);
+    window.marinBudgetTool.refilter();
+  });
+  document.dispatchEvent(new Event("marin-budget-tool-ready"));
   filterNow();
   applyColumn();
   applySort();
