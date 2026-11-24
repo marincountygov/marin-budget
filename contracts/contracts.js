@@ -88,9 +88,14 @@
   // ---- Lists -------------------------------------------------------------------------------------------
   // Sort: by value (the filtered total) or by name, in either direction.
   function sorter(name, value) {
-    const orders = { high: (a, b) => value(b) - value(a), low: (a, b) => value(a) - value(b), az: (a, b) => name(a).localeCompare(name(b)), za: (a, b) => name(b).localeCompare(name(a)) };
-    // Only one of these four, never a name that an object inherits (constructor, toString): the sort comes from the address and from a button's data attribute.
-    const by = Object.prototype.hasOwnProperty.call(orders, state.sort) ? orders[state.sort] : orders.high;
+    // One of four orders chosen by its literal name; anything else (the sort comes from the address and from a button's data attribute) is the default.
+    let by;
+    switch (state.sort) {
+      case "low": by = (a, b) => value(a) - value(b); break;
+      case "az": by = (a, b) => name(a).localeCompare(name(b)); break;
+      case "za": by = (a, b) => name(b).localeCompare(name(a)); break;
+      default: by = (a, b) => value(b) - value(a); // "high"
+    }
     return (a, b) => by(a, b) || name(a).localeCompare(name(b));
   }
 
