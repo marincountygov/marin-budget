@@ -145,7 +145,7 @@
   }
 
   function toMarkdown(report) {
-    const cell = (v) => String(v).replace(/\|/g, '\\|').replace(/\n/g, ' ');
+    const cell = (v) => String(v).replace(/\\/g, '\\\\').replace(/\|/g, '\\|').replace(/\n/g, ' '); // the backslash first, so a value cannot undo the escape of the pipe after it
     const out = ['# ' + report.title];
     if (report.prepared) out.push('', 'Prepared ' + formatDate(report.prepared));
     if (report.filters) out.push('', report.filters);

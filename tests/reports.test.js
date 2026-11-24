@@ -51,6 +51,16 @@ test('a report is escaped, dated, and keeps only safe links', () => {
   assert.ok(!html.includes('<report>'));
 });
 
+test('markdown escapes a backslash before a pipe, so a value cannot split its table row', () => {
+  const report = { title: 'T', filters: '', sections: [{ title: '', head: ['Name', 'Value'], rows: [['C:\\data', 1], ['a\\|b', 2], ['ends with\\', 3]] }], sources: [] };
+  const md = R.toMarkdown(report);
+  assert.ok(md.includes('| C:\\\\data | 1 |'), md);
+  assert.ok(md.includes('| a\\\\\\|b | 2 |'), md);
+  assert.ok(md.includes('| ends with\\\\ | 3 |'), md);
+  // every body row has exactly the two cells: an unescaped pipe would make three
+  for (const row of md.split('\n').filter((l) => /^\| (C:|a|ends)/.test(l))) assert.strictEqual(row.replace(/\\./g, '').split('|').length - 2, 2, row);
+});
+
 test('text, markdown, standalone page and csv come from the same report', () => {
   const r = sample();
   assert.match(R.toText(r), /^Budget <report>\nPrepared November 18, 2026\nShowing: all\n\nArea \| FY 2026-27\nSafety \| \$1/);
