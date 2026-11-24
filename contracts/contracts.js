@@ -88,7 +88,9 @@
   // ---- Lists -------------------------------------------------------------------------------------------
   // Sort: by value (the filtered total) or by name, in either direction.
   function sorter(name, value) {
-    const by = { high: (a, b) => value(b) - value(a), low: (a, b) => value(a) - value(b), az: (a, b) => name(a).localeCompare(name(b)), za: (a, b) => name(b).localeCompare(name(a)) }[state.sort];
+    const orders = { high: (a, b) => value(b) - value(a), low: (a, b) => value(a) - value(b), az: (a, b) => name(a).localeCompare(name(b)), za: (a, b) => name(b).localeCompare(name(a)) };
+    // Only one of these four, never a name that an object inherits (constructor, toString): the sort comes from the address and from a button's data attribute.
+    const by = Object.prototype.hasOwnProperty.call(orders, state.sort) ? orders[state.sort] : orders.high;
     return (a, b) => by(a, b) || name(a).localeCompare(name(b));
   }
 
@@ -234,7 +236,8 @@
   }
 
   // ---- Copy, link and download: what is filtered, not only the 100 cards on screen -----------------------
-  const mdCell = (v) => String(v).replace(/\|/g, "\\|").replace(/\s+/g, " ");
+  // A backslash is escaped first, so a cell that ends in one (or holds "\|") cannot undo the escape of the pipe after it and split the row.
+  const mdCell = (v) => String(v).replace(/\\/g, "\\\\").replace(/\|/g, "\\|").replace(/\s+/g, " ");
   const htmlCell = (v) => escapeHtml(v);
   const SORT_LABEL = { high: "value, high to low", low: "value, low to high", az: "name, A to Z", za: "name, Z to A" };
 
