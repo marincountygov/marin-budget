@@ -27,6 +27,8 @@ if [[ -f "$ROOT_DIR/vendor/marinos/audit-buttons.py" ]]; then
 else
   printf 'SKIP: vendor/marinos/audit-buttons.py is missing (shell older than 1.18.0); the button audit was not run.\n' >&2
 fi
+# An h1 has one of two sizes (Marin UI 1.41.0); this lists app CSS that sets its own size and must list nothing.
+python3 "$ROOT_DIR/vendor/marinos/audit-h1.py" "$ROOT_DIR" --fail
 # Every filter column is drawn by the shell from a filters.json that follows the schema; no hand-written filter column.
 if [[ -f "$ROOT_DIR/vendor/marinos/audit-filter-column.py" ]]; then
   python3 "$ROOT_DIR/vendor/marinos/audit-filter-column.py" "$ROOT_DIR" --fail
