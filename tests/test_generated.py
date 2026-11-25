@@ -178,8 +178,10 @@ class PageTests(unittest.TestCase):
         some = next((ROOT / "contracts/vendors").glob("*.html")).read_text(encoding="utf-8")
         self.assertIn("contracts-of-", some)
         self.assertRegex(some, r'<div class="table-block" id="contracts-of-[^"]+">.*?data-fullscreen-target="#contracts-of-')
-        css = (ROOT / "shared/styles.css").read_text(encoding="utf-8")
+        # A card's name is 1.25rem and bold. The size comes from Marin UI (the shell's vendored styles), not from this app's CSS.
+        css = (ROOT / "vendor/marinos/marinos.css").read_text(encoding="utf-8")
         self.assertRegex(css, r"\.mm-card__title \{[^}]*font-size: 1\.25rem;\s*font-weight: 700")
+        self.assertNotIn(".mm-card__title", (ROOT / "shared/styles.css").read_text(encoding="utf-8"))
         self.assertIn('class="app-status"', js)
         self.assertIn("window.marinDisplayName", js)
 

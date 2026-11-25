@@ -44,14 +44,6 @@
   min-width: 15rem;
 }
 
-/* A card's checkbox, as in Marin Mentions: 24 px (WCAG 2.5.8), first in the row, centred against it. */
-.mm-card__select {
-  flex: 0 0 auto;
-  align-self: center;
-  display: flex;
-  align-items: center;
-}
-
 .mm-card__select input[type="checkbox"],
 .mm-select-all input[type="checkbox"] {
   width: 1.5rem;
@@ -76,24 +68,6 @@
   align-items: center;
   gap: 0.5rem;
   margin: 0;
-}
-
-.mm-card__meta {
-  flex-wrap: wrap;
-}
-
-@media (max-width: 480px) {
-  .mm-card {
-    flex-direction: column;
-  }
-
-  .mm-card__select {
-    align-self: flex-start;
-  }
-
-  .mm-card__body {
-    align-self: stretch;
-  }
 }
 
 /* A chart card in Stats: the canvas fills a box of fixed height, so it can be redrawn as the selection changes. */
