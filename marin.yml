@@ -11,7 +11,7 @@ project:
   test_sections: budget/, capital/, contracts/, reports/
 
 platform:
-  shell: 2.1.0
+  shell: 2.6.0
   template: manual
 
 deployment:
