@@ -1,5 +1,5 @@
-@import url("../shared/styles.css?v=fa402c76");
-@import url("../shared/search-layout.css?v=fa402c76");
+@import url("../shared/styles.css?v=45a49321");
+@import url("../shared/search-layout.css?v=45a49321");
 
 /* A hidden project (filtered out) leaves the list and the table. */
 .search-results-list > [hidden],
